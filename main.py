@@ -54,8 +54,9 @@ if __name__ == "__main__":
     data_points = data_points[150:-150, 150:-150]
     # data_points = np.transpose(data_points)
     # remove bleeding edges
-
-n, bins, patches = plt.hist([x for x in data_points.flatten() if 3000 < x < 4000], bins=100)
+max = 3500
+min = 3350
+n, bins, patches = plt.hist([x for x in data_points.flatten() if 3350 < x < 3500], bins=max-min-2)
 
 
 # fit guassian to find mean
@@ -68,17 +69,19 @@ for i in range(len(bins) - 1):
     midpoints[i] = (bins[i + 1] + bins[i]) / 2
 
 mean = 3420
-sigma = 200
+sigma = 50
 a = 2 * 10 ** 6
 
 x = midpoints
 y = n
 
-popt, pcov = curve_fit(gaus, x, y, p0=[1, mean, sigma])
+popt, pcov = curve_fit(gaus, x, y, p0=[a, mean, sigma])
 perr = np.sqrt(np.diag(pcov))
 print(f"p_error = {perr}")
 print(f"The amplitude is {popt[0]}, The mean is {popt[1]}, sigma = {popt[2]}")
+print(f"The error from sigma is estimated at: {popt[2]/np.sqrt(len(data_points))}")
 plt.plot(x, gaus(x, *popt), 'ro:', label='Gaussian Fit')
+plt.legend()
 plt.xlabel('Pixel Value')
 plt.ylabel('Frequency')
 plt.show()
