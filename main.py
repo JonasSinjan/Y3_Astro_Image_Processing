@@ -1,5 +1,6 @@
 from astropy.io import fits
 import numpy as np
+from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 
 bleeding_edge = [
@@ -36,8 +37,8 @@ if __name__ == "__main__":
     data_points = None
 
     with fits.open("A1_mosaic.fits") as hdulist:
-        for key, val in hdulist[0].header.items():
-            print(f"{key},{val}")
+        #for key, val in hdulist[0].header.items():
+            #print(f"{key},{val}")
 
         data_points = hdulist[0].data
 
@@ -45,7 +46,7 @@ if __name__ == "__main__":
         tleft = np.array(rect["tleft"], dtype=int)
         bright = np.array(rect['bright'], dtype=int)
         # rows, columns
-        data_points[bright[1]:tleft[1], tleft[0]:bright[0]] = 0 # background value
+        data_points[bright[1]:tleft[1], tleft[0]:bright[0]] = 0  # background value
 
     # remove the edges, first and last 150 columns
     # remove the edges, first and last 150 columns and first and last rows
@@ -54,10 +55,32 @@ if __name__ == "__main__":
     # data_points = np.transpose(data_points)
     # remove bleeding edges
 
-plt.hist([x for x in data_points.flatten() if 3000 < x < 4000], bins=100)
+n, bins, patches = plt.hist([x for x in data_points.flatten() if 3000 < x < 4000], bins=100)
 
-def gaus(x,sigma, mean):
-    return
+
+# fit guassian to find mean
+def gaus(x, a, x0, sigma):
+    return a * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2))
+
+
+midpoints = [0] * (len(bins) - 1)
+for i in range(len(bins) - 1):
+    midpoints[i] = (bins[i + 1] + bins[i]) / 2
+
+mean = 3420
+sigma = 200
+a = 2 * 10 ** 6
+
+x = midpoints
+y = n
+
+popt, pcov = curve_fit(gaus, x, y, p0=[1, mean, sigma])
+perr = np.sqrt(np.diag(pcov))
+print(f"p_error = {perr}")
+print(f"The amplitude is {popt[0]}, The mean is {popt[1]}, sigma = {popt[2]}")
+plt.plot(x, gaus(x, *popt), 'ro:', label='Gaussian Fit')
+plt.xlabel('Pixel Value')
+plt.ylabel('Frequency')
 plt.show()
 
 fig, ax = plt.subplots()
