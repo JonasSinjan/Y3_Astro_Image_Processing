@@ -25,6 +25,10 @@ bleeding_edge = [
      'bright': (946, 2223), 'name': 'Other Star 2'},
     {'tleft': (935, 2837),
      'bright': (996, 2708), 'name': 'Other Star 3'},
+    {'tleft': (19, 710),
+     'bright': (112, 610), 'name': 'Other Star 4'},
+    {'tleft': (2106, 3800),
+     'bright': (2160, 3714), 'name': 'Other Star 5'},
 ]
 
 if __name__ == "__main__":
@@ -50,7 +54,10 @@ if __name__ == "__main__":
     # data_points = np.transpose(data_points)
     # remove bleeding edges
 
-plt.hist([x for x in data_points.flatten() if 3000 < x < 7000], bins=100)
+plt.hist([x for x in data_points.flatten() if 3000 < x < 4000], bins=100)
+
+def gaus(x,sigma, mean):
+    return
 plt.show()
 
 fig, ax = plt.subplots()
