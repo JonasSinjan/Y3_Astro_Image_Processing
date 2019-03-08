@@ -4,22 +4,27 @@ import matplotlib.pyplot as plt
 
 bleeding_edge = [
     {'tleft': (1428, 4608),
-     'bright': (1445, 3509)},  # Top rectangle of main divider
-    {'tleft': (1427, 2938),    # Bottom rectangle
-     'bright': (1445, 0)},
+     'bright': (1445, 3509), 'name': 'Above Cen Star'},
+    {'tleft': (1427, 2938),
+     'bright': (1445, 0), 'name': 'Below Cen Star'},
     {'tleft': (1026, 370),
-     'bright': (1703, 315)},
+     'bright': (1703, 315), 'name': 'Xmas 1'},
     {'tleft': (1394, 279),
-     'bright': (1475, 217)},
+     'bright': (1475, 217), 'name': 'Xmas 2'},
     {'tleft': (1288, 164),
-     'bright': (1521, 124)},
+     'bright': (1521, 124), 'name': 'Xmas 3'},
     {'tleft': (1021, 359),
-     'bright': (1702, 316)},
+     'bright': (1702, 316), 'name': 'Xmas 4'},
     {'tleft': (1634, 61),
-     'bright': (1717, 2)},
+     'bright': (1717, 2), 'name': 'Xmas 5'},
     {'tleft': (1200, 3446),
-     'bright': (1659, 2967)},
-
+     'bright': (1659, 2967), 'name': 'Central Star'},
+    {'tleft': (725, 3426),
+     'bright': (818, 3209), 'name': 'Other Star 1'},
+    {'tleft': (865, 2358),
+     'bright': (946, 2223), 'name': 'Other Star 2'},
+    {'tleft': (935, 2837),
+     'bright': (996, 2708), 'name': 'Other Star 3'},
 ]
 
 if __name__ == "__main__":
