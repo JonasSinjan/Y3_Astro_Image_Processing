@@ -56,7 +56,7 @@ if __name__ == "__main__":
         tleft = np.array(rect["tleft"], dtype=int)
         bright = np.array(rect['bright'], dtype=int)
         # rows, columns
-        data_points[bright[1]:tleft[1], tleft[0]:bright[0]] = 3419  # background value
+        #data_points[bright[1]:tleft[1], tleft[0]:bright[0]] = 3419  # background value
 
     # remove the edges, first and last 150 columns
     # remove the edges, first and last 150 columns and first and last rows
@@ -67,12 +67,12 @@ if __name__ == "__main__":
     # remove bleeding edges
 
 # cut-off filter
-cut_off = 30000
+cut_off = 10000
 
 for y in range(len(data_points)):
     for x in range(len(data_points[y])):
         if data_points[y, x] >= cut_off:
-            data_points[y, x] = 0
+            data_points[y, x] = 3420
 
 # # histogram of background radiation
 #
@@ -120,11 +120,11 @@ for y in range(len(data_points)):
 #
 # plt.show()
 #
-# # showing raw image with masking elements
-# fig, ax = plt.subplots()
-# sky = ax.imshow(data_points, origin="lower", cmap='jet', aspect="equal")
-# fig.colorbar(sky)
-# plt.show()
+# showing raw image with masking elements
+fig, ax = plt.subplots()
+sky = ax.imshow(np.log(data_points-3420), origin="lower", cmap='viridis', aspect="equal")
+fig.colorbar(sky)
+plt.show()
 #
 # # 3D plot of data points and counts
 # fig = plt.figure()
@@ -137,18 +137,18 @@ for y in range(len(data_points)):
 # ax.set_zlabel('Pixel Count')
 # plt.show()
 
-# converting counts to instrumental magnitudes
-inst_mag_arr = np.zeros((len(data_points), len(data_points[0])))
-var1, var2 = len(data_points[0]), len(data_points)
-for y in range(var2):
-    for x in range(var1):
-        inst_mag_arr[y][x] = mag_known - 2.5 * np.log10(data_points[y][x])
-
-fig = plt.figure(3)
-ax = plt.axes(projection="3d")
-X, Y = np.meshgrid(range(len(data_points[0])), range(len(data_points)))
-ax.plot_surface(X, Y, inst_mag_arr)
-ax.set_ylabel('Y')
-ax.set_xlabel('X')
-ax.set_zlabel('Magnitude')
-plt.show()
+# # converting counts to instrumental magnitudes
+# inst_mag_arr = np.zeros((len(data_points), len(data_points[0])))
+# var1, var2 = len(data_points[0]), len(data_points)
+# for y in range(var2):
+#     for x in range(var1):
+#         inst_mag_arr[y][x] = mag_known - 2.5 * np.log10(data_points[y][x])
+#
+# fig = plt.figure(3)
+# ax = plt.axes(projection="3d")
+# X, Y = np.meshgrid(range(len(data_points[0])), range(len(data_points)))
+# ax.plot_surface(X, Y, inst_mag_arr)
+# ax.set_ylabel('Y')
+# ax.set_xlabel('X')
+# ax.set_zlabel('Magnitude')
+# plt.show()
