@@ -3,6 +3,7 @@ import numpy as np
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+
 cut_off = 30000
 
 bleeding_edge = [
@@ -39,8 +40,8 @@ if __name__ == "__main__":
     data_points = None
 
     with fits.open("A1_mosaic.fits") as hdulist:
-        #for key, val in hdulist[0].header.items():
-            #print(f"{key},{val}")
+        # for key, val in hdulist[0].header.items():
+        # print(f"{key},{val}")
 
         data_points = hdulist[0].data
 
@@ -55,12 +56,11 @@ if __name__ == "__main__":
 
     data_points = data_points[150:-150, 150:-150]
 
-
     # data_points = np.transpose(data_points)
     # remove bleeding edges
 max = 3500
 min = 3350
-n, bins, patches = plt.hist([x for x in data_points.flatten() if 3350 < x < 3500], bins=max-min-2)
+n, bins, patches = plt.hist([x for x in data_points.flatten() if 3350 < x < 3500], bins=max - min - 2)
 
 
 # fit guassian to find mean
@@ -69,8 +69,8 @@ def gaus(x, a, x0, sigma):
 
     for y in range(len(data_points)):
         for x in range(len(data_points[y])):
-            if data_points[y,x] >= cut_off:
-                data_points[y,x] = 0
+            if data_points[y, x] >= cut_off:
+                data_points[y, x] = 0
 
 
 midpoints = [0] * (len(bins) - 1)
@@ -88,7 +88,7 @@ popt, pcov = curve_fit(gaus, x, y, p0=[a, mean, sigma])
 perr = np.sqrt(np.diag(pcov))
 print(f"p_error = {perr}")
 print(f"The amplitude is {popt[0]}, The mean is {popt[1]}, sigma = {popt[2]}")
-print(f"The error from sigma is estimated at: {popt[2]/np.sqrt(len(data_points))}")
+print(f"The error from sigma is estimated at: {popt[2] / np.sqrt(len(data_points))}")
 plt.plot(x, gaus(x, *popt), 'ro:', label='Gaussian Fit')
 plt.legend()
 plt.xlabel('Pixel Value')
@@ -97,12 +97,12 @@ plt.show()
 
 fig, ax = plt.subplots()
 
-sky = ax.imshow(data_points, origin="lower", cmap='jet',aspect="equal")
+sky = ax.imshow(data_points, origin="lower", cmap='jet', aspect="equal")
 fig.colorbar(sky)
 plt.show()
 
 fig = plt.figure()
 ax = plt.axes(projection="3d")
-X,Y = np.meshgrid(range(len(data_points[0])),range(len(data_points)))
-ax.plot_surface(X,Y,data_points)
+X, Y = np.meshgrid(range(len(data_points[0])), range(len(data_points)))
+ax.plot_surface(X, Y, data_points)
 plt.show()
