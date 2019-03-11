@@ -18,6 +18,8 @@ bleeding_edge = [
      'bright': (1702, 316), 'name': 'Xmas 4'},
     {'tleft': (1634, 61),
      'bright': (1717, 2), 'name': 'Xmas 5'},
+    {'tleft': (1634, 61),
+     'bright': (1717, 2), 'name': 'Xmas 5'},
     {'tleft': (1200, 3446),
      'bright': (1659, 2967), 'name': 'Central Star'},
     {'tleft': (725, 3426),
@@ -56,7 +58,11 @@ if __name__ == "__main__":
     # remove bleeding edges
 max = 3500
 min = 3350
-n, bins, patches = plt.hist([x for x in data_points.flatten() if 3350 < x < 3500], bins=max-min-2)
+n, bins, patches = plt.hist([x for x in data_points.flatten() if 3350 < x < 3500], bins=max-min-1)
+plt.show()
+#for x in data_points.flatten():
+ #   if x > 50000:
+  #      print(x)
 
 
 # fit guassian to find mean
@@ -66,7 +72,7 @@ def gaus(x, a, x0, sigma):
 
 midpoints = [0] * (len(bins) - 1)
 for i in range(len(bins) - 1):
-    midpoints[i] = (bins[i + 1] + bins[i]) / 2
+   midpoints[i] = (bins[i + 1] + bins[i]) / 2
 
 mean = 3420
 sigma = 50
@@ -80,11 +86,19 @@ perr = np.sqrt(np.diag(pcov))
 print(f"p_error = {perr}")
 print(f"The amplitude is {popt[0]}, The mean is {popt[1]}, sigma = {popt[2]}")
 print(f"The error from sigma is estimated at: {popt[2]/np.sqrt(len(data_points))}")
-plt.plot(x, gaus(x, *popt), 'ro:', label='Gaussian Fit')
-plt.legend()
+#plt.plot(x, gaus(x, *popt), 'ro:', label='Gaussian Fit')
+plt.figure(1)
+plt.plot(x, (y-gaus(x, *popt))/y, label='Signal')
+# plt.xlim(3390, 3440)
+# plt.ylim(-0.1, 0.2)
 plt.xlabel('Pixel Value')
-plt.ylabel('Frequency')
+plt.ylabel('Relative Frequency Offset From Gaussian')
+plt.title('Residual Nature - Highlights Local Background Regions')
+plt.legend()
+
 plt.show()
+
+#for i in y-gaus(x,*popt)
 
 fig, ax = plt.subplots()
 sky = ax.imshow(data_points, origin="lower", cmap='jet')
