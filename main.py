@@ -2,6 +2,8 @@ from astropy.io import fits
 import numpy as np
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+cut_off = 30000
 
 bleeding_edge = [
     {'tleft': (1428, 4608),
@@ -52,6 +54,8 @@ if __name__ == "__main__":
     # remove the edges, first and last 150 columns and first and last rows
 
     data_points = data_points[150:-150, 150:-150]
+
+
     # data_points = np.transpose(data_points)
     # remove bleeding edges
 max = 3500
@@ -62,6 +66,11 @@ n, bins, patches = plt.hist([x for x in data_points.flatten() if 3350 < x < 3500
 # fit guassian to find mean
 def gaus(x, a, x0, sigma):
     return a * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2))
+
+    for y in range(len(data_points)):
+        for x in range(len(data_points[y])):
+            if data_points[y,x] >= cut_off:
+                data_points[y,x] = 0
 
 
 midpoints = [0] * (len(bins) - 1)
@@ -87,6 +96,13 @@ plt.ylabel('Frequency')
 plt.show()
 
 fig, ax = plt.subplots()
-sky = ax.imshow(data_points, origin="lower", cmap='jet')
+
+sky = ax.imshow(data_points, origin="lower", cmap='jet',aspect="equal")
 fig.colorbar(sky)
+plt.show()
+
+fig = plt.figure()
+ax = plt.axes(projection="3d")
+X,Y = np.meshgrid(range(len(data_points[0])),range(len(data_points)))
+ax.plot_surface(X,Y,data_points)
 plt.show()
