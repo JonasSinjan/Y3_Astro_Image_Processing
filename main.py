@@ -73,18 +73,7 @@ cluster_centroid = [
 
 
 def main():
-    def plotlogim(data):
-        fig, ax = plt.subplots()
-        sky = ax.imshow(np.log(data - 3420), origin="lower", cmap='viridis', aspect="equal")
-        fig.colorbar(sky)
-        plt.show()
 
-    def plotlin(data):
-        fig, ax = plt.subplots()
-        sky = ax.imshow(data, origin="lower", cmap='jet', aspect="equal")
-        fig.colorbar(sky)
-        plt.show()
-        # 3D plot of data points and counts
 
     def plotcount(data):
         fig = plt.figure()
@@ -126,6 +115,8 @@ def main():
         print(f"The known magnitude calibration error is {mag_known_err}")
         data_points = hdulist[0].data
 
+
+
     # for rect in bleeding_edge:
     #     tleft = np.array(rect["tleft"], dtype=int)
     #     bright = np.array(rect['bright'], dtype=int)
@@ -164,7 +155,7 @@ def main():
             # Subtract 150 to normalise to new coordinate system
             init_x, init_y = centroid[1] - 150, centroid[0] - 150
             cluster_points = []
-            flood_fill(init_x, init_y, data_points[init_x, init_y], data_points, cluster_points, step_size=1, threshold=0.25,always_up=True)
+            flood_fill(init_x, init_y, data_points[init_x, init_y], data_points, cluster_points, step_size=1, threshold=0.25, always_up=True)
             cluster_points_trp = np.transpose(cluster_points)
             plt.scatter(cluster_points_trp[1], cluster_points_trp[0], s=1, label=f"Cluster")
         plt.show()
@@ -220,10 +211,10 @@ def main():
 
     def detect(data):
         loc = np.where(data == data.max())
-        val = data[loc[0], loc[1]] #loc[0] is rows, loc[1] is columns
+        val = data[loc[0], loc[1]]  # loc[0] is rows, loc[1] is columns
         if val.size >= 1:
-            for i in range(len(loc[1])-1):  #checking row-wise, column wise to see if pixels next to each other
-                if np.abs(loc[0][i]-loc[0][i+1])>=1 and np.abs(loc[1][i]-loc[1][i+1])>=1:
+            for i in range(len(loc[1]) - 1):  # checking row-wise, column wise to see if pixels next to each other
+                if np.abs(loc[0][i] - loc[0][i + 1]) >= 1 and np.abs(loc[1][i] - loc[1][i + 1]) >= 1:
                     obj_arr = []
                     flood_fill(loc[1][i], loc[0][i], val, data, obj_arr, threshold=0.01)
                     tmp = 0
@@ -236,7 +227,6 @@ def main():
                     # convert remaining flux into magnitude
                     # update boolean array to say this pixel has been dealt with
 
-        pass
 
 # mag(data_points)
 if __name__ == "__main__":
