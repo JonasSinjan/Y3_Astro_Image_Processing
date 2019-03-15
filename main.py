@@ -6,7 +6,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import sys
 import threading
 
-cut_off = 30000
+cut_off = 50000
 background_cutoff = 4000
 
 
@@ -218,6 +218,25 @@ def main():
     #
     # showing raw image with masking elements
 
+    def detect(data):
+        loc = np.where(data == data.max())
+        val = data[loc[0], loc[1]] #loc[0] is rows, loc[1] is columns
+        if val.size >= 1:
+            for i in range(len(loc[1])-1):  #checking row-wise, column wise to see if pixels next to each other
+                if np.abs(loc[0][i]-loc[0][i+1])>=1 and np.abs(loc[1][i]-loc[1][i+1])>=1:
+                    obj_arr = []
+                    flood_fill(loc[1][i], loc[0][i], val, data, obj_arr, threshold=0.01)
+                    tmp = 0
+                    for i in obj_arr:
+                        tmp += data_points[i]  # finding aperture flux of source
+
+                    # now background around source
+                    # find avg background count per pixel
+                    # find total sum of pixels and subtract total amount of background contribution
+                    # convert remaining flux into magnitude
+                    # update boolean array to say this pixel has been dealt with
+
+        pass
 
 # mag(data_points)
 if __name__ == "__main__":
