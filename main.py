@@ -3,6 +3,26 @@ import numpy as np
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import sys
+import threading
+
+cut_off = 30000
+background_cutoff = 4000
+
+
+def flood_fill(x, y, val, data, closedset, threshold=0.01):
+    if x >= data.shape[0] or y >= data.shape[1] or x < 0 or y < 0:
+        return
+    if (x, y) in closedset:
+        return
+    if np.abs(int(data[x, y]) - int(val)) / val <= threshold:
+        closedset.append((x, y))
+    else:
+        return
+    flood_fill(x + 25, y, val, data, closedset, threshold)
+    flood_fill(x - 25, y, val, data, closedset, threshold)
+    flood_fill(x, y + 25, val, data, closedset, threshold)
+    flood_fill(x, y - 25, val, data, closedset, threshold)
 
 # masking
 bleeding_edge = [
@@ -39,8 +59,9 @@ bleeding_edge = [
 ]
 
 # opening image with astropy
-if __name__ == "__main__":
 
+
+def main():
     data_points = None
 
     with fits.open("A1_mosaic.fits") as hdulist:
@@ -56,105 +77,109 @@ if __name__ == "__main__":
         tleft = np.array(rect["tleft"], dtype=int)
         bright = np.array(rect['bright'], dtype=int)
         # rows, columns
-        data_points[bright[1]:tleft[1], tleft[0]:bright[0]] = 3419  # background value
+        # data_points[bright[1]:tleft[1], tleft[0]:bright[0]] = 3419  # background value
 
     # remove the edges, first and last 150 columns
     # remove the edges, first and last 150 columns and first and last rows
 
     data_points = data_points[150:-150, 150:-150]
-
+    width, height = data_points.shape
     # data_points = np.transpose(data_points)
     # remove bleeding edges
 
-# cut-off filter
-cut_off = 10000
+    # cut-off filter
 
-for y in range(len(data_points)):
-    for x in range(len(data_points[y])):
-        if data_points[y, x] >= cut_off:
-            data_points[y, x] = 3419  # global background
+    for y in range(len(data_points)):
+        for x in range(len(data_points[y])):
+            if data_points[y, x] >= cut_off:
+                data_points[y, x] = 3419  # global background
 
 
 # # histogram of background radiation
-def histogram(data, max, min):
-    n, bins, patches = plt.hist([x for x in data.flatten() if min < x < max], bins=max - min - 2)
+    def histogram(data, max, min):
+        n, bins, patches = plt.hist([x for x in data.flatten() if min < x < max], bins=max - min - 2)
 
-    # fit guassian to find mean
-    def gaus(x, a, x0, sigma):
-        return a * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2))
+        # fit guassian to find mean
+        def gaus(x, a, x0, sigma):
+            return a * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2))
 
-    # finding the midpoints of the bins
-    midpoints = [0] * (len(bins) - 1)
-    for i in range(len(bins) - 1):
-        midpoints[i] = (bins[i + 1] + bins[i]) / 2
+        # finding the midpoints of the bins
+        midpoints = [0] * (len(bins) - 1)
+        for i in range(len(bins) - 1):
+            midpoints[i] = (bins[i + 1] + bins[i]) / 2
 
-    # initial guesses
-    mean = 3420
-    sigma = 50
-    a = 2 * 10 ** 6
+        # initial guesses
+        mean = 3420
+        sigma = 50
+        a = 2 * 10 ** 6
 
-    x = midpoints
-    y = n
+        x = midpoints
+        y = n
 
-    popt, pcov = curve_fit(gaus, x, y, p0=[a, mean, sigma])  # fitting
+        popt, pcov = curve_fit(gaus, x, y, p0=[a, mean, sigma])  # fitting
 
-    perr = np.sqrt(np.diag(pcov))  # standard error of estimate
+        perr = np.sqrt(np.diag(pcov))  # standard error of estimate
 
-    print(f"p_error = {perr}")
-    print(f"The amplitude is {popt[0]}, The mean is {popt[1]}, sigma = {popt[2]}")
-    print(f"The error from sigma is estimated at: {popt[2] / np.sqrt(len(data))}")
+        print(f"p_error = {perr}")
+        print(f"The amplitude is {popt[0]}, The mean is {popt[1]}, sigma = {popt[2]}")
+        print(f"The error from sigma is estimated at: {popt[2] / np.sqrt(len(data))}")
 
-    # plt.plot(x, gaus(x, *popt), 'ro:', label='Gaussian Fit')
-    plt.figure(1)
-    plt.plot(x, (y - gaus(x, *popt)) / y, label='Signal')
-    # plt.xlim(3390, 3440)
-    # plt.ylim(-0.1, 0.2)
+        # plt.plot(x, gaus(x, *popt), 'ro:', label='Gaussian Fit')
+        plt.figure(1)
+        plt.plot(x, (y - gaus(x, *popt)) / y, label='Signal')
+        # plt.xlim(3390, 3440)
+        # plt.ylim(-0.1, 0.2)
 
-    plt.xlabel('Pixel Value')
-    plt.ylabel('Relative Frequency Offset From Gaussian')
-    plt.title('Residual Nature - Highlights Local Background Regions')
-    plt.legend()
+        plt.xlabel('Pixel Value')
+        plt.ylabel('Relative Frequency Offset From Gaussian')
+        plt.title('Residual Nature - Highlights Local Background Regions')
+        plt.legend()
 
-    plt.show()
+        plt.show()
 
 
 #
 # showing raw image with masking elements
-def plotlogim(data):
-    fig, ax = plt.subplots()
-    sky = ax.imshow(np.log(data - 3420), origin="lower", cmap='viridis', aspect="equal")
-    fig.colorbar(sky)
-    plt.show()
+    def plotlogim(data):
+        fig, ax = plt.subplots()
+        sky = ax.imshow(np.log(data - 3420), origin="lower", cmap='viridis', aspect="equal")
+        fig.colorbar(sky)
+        plt.show()
 
 
 # 3D plot of data points and counts
-def plotcount(data):
-    fig = plt.figure()
-    ax = plt.axes(projection="3d")
-    X, Y = np.meshgrid(range(len(data[0])), range(len(data)))
-    ax.plot_surface(X, Y, data)
-    ax.set_zlim(0, 5000)
-    ax.set_ylabel('Y')
-    ax.set_xlabel('X')
-    ax.set_zlabel('Pixel Count')
-    plt.show()
+    def plotcount(data):
+        fig = plt.figure()
+        ax = plt.axes(projection="3d")
+        X, Y = np.meshgrid(range(len(data[0])), range(len(data)))
+        ax.plot_surface(X, Y, data)
+        ax.set_zlim(0, 5000)
+        ax.set_ylabel('Y')
+        ax.set_xlabel('X')
+        ax.set_zlabel('Pixel Count')
+        plt.show()
 
 
 # function to convert counts to relative magnitudes and plot
-def mag(data):
-    inst_mag_arr = np.zeros((len(data), len(data[0])))
-    var1, var2 = len(data[0]), len(data)
-    for y in range(var2):
-        for x in range(var1):
-            inst_mag_arr[y][x] = mag_known - 2.5 * np.log10(data[y][x])
+    def mag(data):
+        inst_mag_arr = np.zeros((len(data), len(data[0])))
+        var1, var2 = len(data[0]), len(data)
+        for y in range(var2):
+            for x in range(var1):
+                inst_mag_arr[y][x] = mag_known - 2.5 * np.log10(data[y][x])
 
-    fig = plt.figure()
-    ax = plt.axes(projection="3d")
-    X, Y = np.meshgrid(range(len(data[0])), range(len(data)))
-    ax.plot_surface(X, Y, inst_mag_arr)
-    ax.set_ylabel('Y')
-    ax.set_xlabel('X')
-    ax.set_zlabel('Magnitude')
-    plt.show()
+        fig = plt.figure()
+        ax = plt.axes(projection="3d")
+        X, Y = np.meshgrid(range(len(data[0])), range(len(data)))
+        ax.plot_surface(X, Y, inst_mag_arr)
+        ax.set_ylabel('Y')
+        ax.set_xlabel('X')
+        ax.set_zlabel('Magnitude')
+        plt.show()
 
 # mag(data_points)
+if __name__ == "__main__":
+    threading.stack_size(67108864)
+    sys.setrecursionlimit(10 ** 5)
+    thread = threading.Thread(target=main)
+    thread.start()
