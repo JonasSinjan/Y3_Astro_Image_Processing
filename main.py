@@ -6,7 +6,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import sys
 import threading
 
-cut_off = 30000
+cut_off = 50000
 background_cutoff = 4000
 
 
@@ -79,7 +79,7 @@ def main():
         tleft = np.array(rect["tleft"], dtype=int)
         bright = np.array(rect['bright'], dtype=int)
         # rows, columns
-        # data_points[bright[1]:tleft[1], tleft[0]:bright[0]] = 3419  # background value
+        data_points[bright[1]:tleft[1], tleft[0]:bright[0]] = 3419  # background value
 
     # remove the edges, first and last 150 columns
     # remove the edges, first and last 150 columns and first and last rows
@@ -109,8 +109,6 @@ def main():
             cluster_points_trp = np.transpose(cluster_points)
             plt.scatter(cluster_points_trp[1],cluster_points_trp[0],s = 1,label=f"Cluster {i}")
         plt.show()
-
-    cluster()
 
     # # histogram of background radiation
     def histogram(data, max, min):
@@ -158,7 +156,7 @@ def main():
     # showing raw image with masking elements
     def plotlogim(data):
         fig, ax = plt.subplots()
-        sky = ax.imshow(np.log(data - 3420), origin="lower", cmap='viridis', aspect="equal")
+        sky = ax.imshow(data, origin="lower", cmap='jet', aspect="equal")
         fig.colorbar(sky)
         plt.show()
 
@@ -190,6 +188,40 @@ def main():
         ax.set_xlabel('X')
         ax.set_zlabel('Magnitude')
         plt.show()
+
+    def detect(data):
+        loc = np.where(data == data.max())
+        val = data[loc[0], loc[1]] #loc[0] is rows, loc[1] is columns
+        if val.size >= 1:
+            for i in range(len(loc[1])-1):  #checking row-wise, column wise to see if pixels next to each other
+                if np.abs(loc[0][i]-loc[0][i+1])>=1 and np.abs(loc[1][i]-loc[1][i+1])>=1:
+                    obj_arr = []
+                    flood_fill(loc[1][i], loc[0][i], val, data, obj_arr, threshold=0.01)
+                    tmp = 0
+                    for i in obj_arr:
+                        tmp += data_points[i]  # finding aperture flux of source
+
+                    # now background around source
+                    # find avg background count per pixel
+                    # find total sum of pixels and subtract total amount of background contribution
+                    # convert remaining flux into magnitude
+                    # update boolean array to say this pixel has been dealt with
+
+        pass
+
+
+
+
+        if np.abs(val - 3419) <= 11.8:
+            return
+
+        # square = data[loc[0]-1:loc[0]+1, loc[1]-1:loc[1]+1] #array of surrounding values
+
+        ext_obj = flood_fill(loc[1], loc[0], val, data, [], threshold=0.01)
+        return ext_obj, loc, val
+
+    loc, val = detect(data_points)
+    print(loc, val)
 
 
 # mag(data_points)
