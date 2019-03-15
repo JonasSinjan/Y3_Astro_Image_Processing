@@ -24,6 +24,7 @@ def flood_fill(x, y, val, data, closedset, threshold=0.01):
     flood_fill(x, y + 25, val, data, closedset, threshold)
     flood_fill(x, y - 25, val, data, closedset, threshold)
 
+
 # masking
 bleeding_edge = [
     {'tleft': (1428, 4608),
@@ -57,6 +58,7 @@ bleeding_edge = [
     {'tleft': (2106, 3800),
      'bright': (2160, 3714), 'name': 'Other Star 5'},
 ]
+
 
 # opening image with astropy
 
@@ -94,8 +96,19 @@ def main():
             if data_points[y, x] >= cut_off:
                 data_points[y, x] = 3419  # global background
 
+    def cluster(num_clusters=5):
+        plt.figure()
+        plt.xlim(0, height)
+        plt.ylim(0, width)
+        for i in range(num_clusters):
+            init_x, init_y = np.random.randint(0, width), np.random.randint(0, height)
+            cluster_points = []
+            flood_fill(init_x,init_y,data_points[init_x,init_y],data_points,cluster_points)
+            cluster_points_trp = np.transpose(cluster_points)
+            plt.scatter(cluster_points_trp[1],cluster_points_trp[0],label=f"Cluster {i}")
+        plt.show()
 
-# # histogram of background radiation
+    # # histogram of background radiation
     def histogram(data, max, min):
         n, bins, patches = plt.hist([x for x in data.flatten() if min < x < max], bins=max - min - 2)
 
@@ -137,17 +150,15 @@ def main():
 
         plt.show()
 
-
-#
-# showing raw image with masking elements
+    #
+    # showing raw image with masking elements
     def plotlogim(data):
         fig, ax = plt.subplots()
         sky = ax.imshow(np.log(data - 3420), origin="lower", cmap='viridis', aspect="equal")
         fig.colorbar(sky)
         plt.show()
 
-
-# 3D plot of data points and counts
+    # 3D plot of data points and counts
     def plotcount(data):
         fig = plt.figure()
         ax = plt.axes(projection="3d")
@@ -159,8 +170,7 @@ def main():
         ax.set_zlabel('Pixel Count')
         plt.show()
 
-
-# function to convert counts to relative magnitudes and plot
+    # function to convert counts to relative magnitudes and plot
     def mag(data):
         inst_mag_arr = np.zeros((len(data), len(data[0])))
         var1, var2 = len(data[0]), len(data)
@@ -176,6 +186,7 @@ def main():
         ax.set_xlabel('X')
         ax.set_zlabel('Magnitude')
         plt.show()
+
 
 # mag(data_points)
 if __name__ == "__main__":
