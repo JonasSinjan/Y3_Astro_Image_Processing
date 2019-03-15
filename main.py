@@ -10,7 +10,7 @@ cut_off = 30000
 background_cutoff = 4000
 
 
-def flood_fill(x, y, val, data, closedset, threshold=0.01):
+def flood_fill(x, y, val, data, closedset,step_size = 1, threshold=0.01):
     if x >= data.shape[0] or y >= data.shape[1] or x < 0 or y < 0:
         return
     if (x, y) in closedset:
@@ -19,10 +19,10 @@ def flood_fill(x, y, val, data, closedset, threshold=0.01):
         closedset.append((x, y))
     else:
         return
-    flood_fill(x + 25, y, val, data, closedset, threshold)
-    flood_fill(x - 25, y, val, data, closedset, threshold)
-    flood_fill(x, y + 25, val, data, closedset, threshold)
-    flood_fill(x, y - 25, val, data, closedset, threshold)
+    flood_fill(int(x + step_size), int(y), val, data, closedset, step_size=step_size,threshold=threshold)
+    flood_fill(int(x - step_size), int(y), val, data, closedset, step_size=step_size,threshold=threshold)
+    flood_fill(int(x), int(y + step_size), val, data, closedset, step_size=step_size,threshold=threshold)
+    flood_fill(int(x), int(y - step_size), val, data, closedset, step_size=step_size,threshold=threshold)
 
 
 # masking
@@ -96,6 +96,8 @@ def main():
             if data_points[y, x] >= cut_off:
                 data_points[y, x] = 3419  # global background
 
+
+
     def cluster(num_clusters=5):
         plt.figure()
         plt.xlim(0, height)
@@ -103,10 +105,12 @@ def main():
         for i in range(num_clusters):
             init_x, init_y = np.random.randint(0, width), np.random.randint(0, height)
             cluster_points = []
-            flood_fill(init_x,init_y,data_points[init_x,init_y],data_points,cluster_points)
+            flood_fill(init_x,init_y,data_points[init_x,init_y],data_points,cluster_points,step_size=5)
             cluster_points_trp = np.transpose(cluster_points)
-            plt.scatter(cluster_points_trp[1],cluster_points_trp[0],label=f"Cluster {i}")
+            plt.scatter(cluster_points_trp[1],cluster_points_trp[0],s = 1,label=f"Cluster {i}")
         plt.show()
+
+    cluster()
 
     # # histogram of background radiation
     def histogram(data, max, min):
