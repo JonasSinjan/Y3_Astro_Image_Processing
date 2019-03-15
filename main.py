@@ -15,14 +15,16 @@ def flood_fill(x, y, val, data, closedset, step_size=1, threshold=0.01, always_u
         return
     if (x, y) in closedset:
         return
-    if np.abs(int(data[x, y]) - int(val)) / val <= threshold or (always_up and data[x, y] >= val):
+    this_pt = int(data[x, y])
+    val_i = int(val)
+    if abs(this_pt - val_i) / val_i <= threshold or (always_up and data[x, y] >= val):
         closedset.append((x, y))
     else:
         return
-    flood_fill(int(x + step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold)
-    flood_fill(int(x - step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold)
-    flood_fill(int(x), int(y + step_size), val, data, closedset, step_size=step_size, threshold=threshold)
-    flood_fill(int(x), int(y - step_size), val, data, closedset, step_size=step_size, threshold=threshold)
+    flood_fill(int(x + step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, always_up=True)
+    flood_fill(int(x - step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, always_up=True)
+    flood_fill(int(x), int(y + step_size), val, data, closedset, step_size=step_size, threshold=threshold, always_up=True)
+    flood_fill(int(x), int(y - step_size), val, data, closedset, step_size=step_size, threshold=threshold, always_up=True)
 
 
 # masking
@@ -59,8 +61,11 @@ bleeding_edge = [
      'bright': (2160, 3714), 'name': 'Other Star 5'},
 ]
 
+# Centroids of regions where the flood-fill algorithm will eminate from.
+
 cluster_centroid = [
-    (3100, 1400)
+    (1445, 3193),
+    (1446, 316)
 ]
 
 
@@ -146,20 +151,22 @@ def main():
         return data
 
     data_points = data_points[150:-150, 150:-150]
+    width, height = data_points.shape
     plotlin(data_points)
     plotlogim(data_points)
 
     # cut-off filter
 
     def cluster(fill_points):
-        plt.figure()
+        plt.xlim(0, height)
+        plt.ylim(0, width)
         for centroid in fill_points:
-            init_x, init_y = centroid[0], centroid[1]
+            # Subtract 150 to normalise to new coordinate system
+            init_x, init_y = centroid[1] - 150, centroid[0] - 150
             cluster_points = []
-            flood_fill(init_x, init_y, data_points[init_x, init_y], data_points, cluster_points, step_size=10, threshold=0.2, always_up=False)
+            flood_fill(init_x, init_y, data_points[init_x, init_y], data_points, cluster_points, step_size=1, threshold=0.25,always_up=True)
             cluster_points_trp = np.transpose(cluster_points)
             plt.scatter(cluster_points_trp[1], cluster_points_trp[0], s=1, label=f"Cluster")
-        plt.legend()
         plt.show()
 
     cluster(cluster_centroid)
