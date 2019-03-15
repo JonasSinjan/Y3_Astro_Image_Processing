@@ -229,21 +229,6 @@ def main():
 
         pass
 
-
-
-
-        if np.abs(val - 3419) <= 11.8:
-            return
-
-        # square = data[loc[0]-1:loc[0]+1, loc[1]-1:loc[1]+1] #array of surrounding values
-
-        ext_obj = flood_fill(loc[1], loc[0], val, data, [], threshold=0.01)
-        return ext_obj, loc, val
-
-    loc, val = detect(data_points)
-    print(loc, val)
-
-
 # mag(data_points)
 if __name__ == "__main__":
     threading.stack_size(67108864)
