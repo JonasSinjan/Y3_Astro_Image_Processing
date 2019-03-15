@@ -10,19 +10,19 @@ cut_off = 50000
 background_cutoff = 4000
 
 
-def flood_fill(x, y, val, data, closedset,step_size = 1, threshold=0.01):
+def flood_fill(x, y, val, data, closedset, step_size=1, threshold=0.01, always_up=False):
     if x >= data.shape[0] or y >= data.shape[1] or x < 0 or y < 0:
         return
     if (x, y) in closedset:
         return
-    if np.abs(int(data[x, y]) - int(val)) / val <= threshold:
+    if np.abs(int(data[x, y]) - int(val)) / val <= threshold or (always_up and data[x, y] >= val):
         closedset.append((x, y))
     else:
         return
-    flood_fill(int(x + step_size), int(y), val, data, closedset, step_size=step_size,threshold=threshold)
-    flood_fill(int(x - step_size), int(y), val, data, closedset, step_size=step_size,threshold=threshold)
-    flood_fill(int(x), int(y + step_size), val, data, closedset, step_size=step_size,threshold=threshold)
-    flood_fill(int(x), int(y - step_size), val, data, closedset, step_size=step_size,threshold=threshold)
+    flood_fill(int(x + step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold)
+    flood_fill(int(x - step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold)
+    flood_fill(int(x), int(y + step_size), val, data, closedset, step_size=step_size, threshold=threshold)
+    flood_fill(int(x), int(y - step_size), val, data, closedset, step_size=step_size, threshold=threshold)
 
 
 # masking
@@ -64,6 +64,48 @@ bleeding_edge = [
 
 
 def main():
+    def plotlogim(data):
+        fig, ax = plt.subplots()
+        sky = ax.imshow(np.log(data - 3420), origin="lower", cmap='viridis', aspect="equal")
+        fig.colorbar(sky)
+        plt.show()
+
+    def plotlin(data):
+        fig, ax = plt.subplots()
+        sky = ax.imshow(data, origin="lower", cmap='jet', aspect="equal")
+        fig.colorbar(sky)
+        plt.show()
+        # 3D plot of data points and counts
+
+    def plotcount(data):
+        fig = plt.figure()
+        ax = plt.axes(projection="3d")
+        X, Y = np.meshgrid(range(len(data[0])), range(len(data)))
+        ax.plot_surface(X, Y, data)
+        ax.set_zlim(0, 5000)
+        ax.set_ylabel('Y')
+        ax.set_xlabel('X')
+        ax.set_zlabel('Pixel Count')
+        plt.show()
+
+        # function to convert counts to relative magnitudes and plot
+
+    def mag(data):
+        inst_mag_arr = np.zeros((len(data), len(data[0])))
+        var1, var2 = len(data[0]), len(data)
+        for y in range(var2):
+            for x in range(var1):
+                inst_mag_arr[y][x] = mag_known - 2.5 * np.log10(data[y][x])
+
+        fig = plt.figure()
+        ax = plt.axes(projection="3d")
+        X, Y = np.meshgrid(range(len(data[0])), range(len(data)))
+        ax.plot_surface(X, Y, inst_mag_arr)
+        ax.set_ylabel('Y')
+        ax.set_xlabel('X')
+        ax.set_zlabel('Magnitude')
+        plt.show()
+
     data_points = None
 
     with fits.open("A1_mosaic.fits") as hdulist:
@@ -88,27 +130,39 @@ def main():
     width, height = data_points.shape
     # data_points = np.transpose(data_points)
     # remove bleeding edges
+    plotlin(data_points)
+
+    def trim_and_cut(data, cut):
+        data = data[150:-150, 150:-150]
+
+        def cutting(x):
+            if x >= cut:
+                return 3419
+            return x
+
+        data = np.vectorize(cutting)(data)
+        return data
+
+    data_points = data_points[150:-150, 150:-150]
+    plotlin(data_points)
+    plotlogim(data_points)
 
     # cut-off filter
 
-    for y in range(len(data_points)):
-        for x in range(len(data_points[y])):
-            if data_points[y, x] >= cut_off:
-                data_points[y, x] = 3419  # global background
-
-
-
-    def cluster(num_clusters=5):
+    def cluster(fill_points):
         plt.figure()
-        plt.xlim(0, height)
-        plt.ylim(0, width)
-        for i in range(num_clusters):
-            init_x, init_y = np.random.randint(0, width), np.random.randint(0, height)
+        for centroid in fill_points:
+            init_x, init_y = centroid[0], centroid[1]
             cluster_points = []
-            flood_fill(init_x,init_y,data_points[init_x,init_y],data_points,cluster_points,step_size=5)
+            flood_fill(init_x, init_y, data_points[init_x, init_y], data_points, cluster_points, step_size=10, threshold=0.2, always_up=False)
             cluster_points_trp = np.transpose(cluster_points)
-            plt.scatter(cluster_points_trp[1],cluster_points_trp[0],s = 1,label=f"Cluster {i}")
+            plt.scatter(cluster_points_trp[1], cluster_points_trp[0], s=1, label=f"Cluster")
+        plt.legend()
         plt.show()
+
+    #cluster(cluster_centroid)
+
+    width, height = data_points.shape
 
     # # histogram of background radiation
     def histogram(data, max, min):
@@ -154,40 +208,6 @@ def main():
 
     #
     # showing raw image with masking elements
-    def plotlogim(data):
-        fig, ax = plt.subplots()
-        sky = ax.imshow(data, origin="lower", cmap='jet', aspect="equal")
-        fig.colorbar(sky)
-        plt.show()
-
-    # 3D plot of data points and counts
-    def plotcount(data):
-        fig = plt.figure()
-        ax = plt.axes(projection="3d")
-        X, Y = np.meshgrid(range(len(data[0])), range(len(data)))
-        ax.plot_surface(X, Y, data)
-        ax.set_zlim(0, 5000)
-        ax.set_ylabel('Y')
-        ax.set_xlabel('X')
-        ax.set_zlabel('Pixel Count')
-        plt.show()
-
-    # function to convert counts to relative magnitudes and plot
-    def mag(data):
-        inst_mag_arr = np.zeros((len(data), len(data[0])))
-        var1, var2 = len(data[0]), len(data)
-        for y in range(var2):
-            for x in range(var1):
-                inst_mag_arr[y][x] = mag_known - 2.5 * np.log10(data[y][x])
-
-        fig = plt.figure()
-        ax = plt.axes(projection="3d")
-        X, Y = np.meshgrid(range(len(data[0])), range(len(data)))
-        ax.plot_surface(X, Y, inst_mag_arr)
-        ax.set_ylabel('Y')
-        ax.set_xlabel('X')
-        ax.set_zlabel('Magnitude')
-        plt.show()
 
     def detect(data):
         loc = np.where(data == data.max())
