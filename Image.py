@@ -3,9 +3,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.optimize import curve_fit
+import sys, threading
 
 
 def flood_fill(x, y, val, data, closedset, step_size=1, threshold=0.01, always_up=False, mask=None):
+    if sys.getrecursionlimit() < 1000:
+        raise RuntimeError("Insufficient recursion depth to allow the flood fill to commence")
+
     if x >= data.shape[0] or y >= data.shape[1] or x < 0 or y < 0:
         return
     if (x, y) in closedset:
@@ -35,7 +39,7 @@ class Image:
         self.boundary = 0
 
     def create_mask_map(self, cut_off, rect_masks=None, cluster_centroids=None):
-        self.mask = (self.data <= cut_off)
+        self.mask = (self.data <= cut_off)  # Automatically create mask map based off cut off
         if rect_masks:
             for rect in rect_masks:
                 t_left = rect["tleft"] - self.boundary
@@ -49,7 +53,6 @@ class Image:
                 for point in cluster_points:
                     self.mask[point[1], point[0]] = False
 
-
     def trim(self, boundary):
         self.boundary = boundary
         self.data = self.data[boundary:-boundary, boundary:-boundary]
@@ -59,7 +62,7 @@ class Image:
         pass
 
     def cluster(self, fill_points):
-        # Make sure that this is run on thread with additional stack memory availabile else this will likely fail!
+        # Make sure that this is run on thread with additional stack memory available else this will likely fail!
         plt.xlim(0, self.width)
         plt.ylim(0, self.height)
         for centroid in fill_points:
@@ -156,3 +159,15 @@ class Image:
         ax.set_zlabel('Magnitude')
         plt.show()
         # 3D plot of data points and counts
+
+
+if __name__ == '__main__':
+    def main():
+        # Run all executable code here to ensure that
+        # As Matplotlib is NOT thread safe running any plt commands outside of main may cause unexpected behaviour!
+        pass
+
+    sys.setrecursionlimit(10 ** 5)
+    threading.stack_size(67108864)  # Largest possible stack size of 64MB on Windows
+    main_thread = threading.Thread(target=main)
+    main_thread.start()
