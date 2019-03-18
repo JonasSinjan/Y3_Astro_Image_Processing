@@ -7,7 +7,7 @@ from scipy.optimize import curve_fit
 import sys, threading
 
 
-def flood_fill(x, y, val, data, closedset, step_size=1, threshold=0.01, always_up=False, mask=None):
+def flood_fill(x, y, val, data, closedset, step_size=1, threshold=0.01, gradient_decent=False, always_up=False, mask=None):
     if sys.getrecursionlimit() < 1000:
         raise RuntimeError("Insufficient recursion depth to allow the flood fill to commence")
     if x >= data.shape[0] or y >= data.shape[1] or x < 0 or y < 0:
@@ -23,10 +23,15 @@ def flood_fill(x, y, val, data, closedset, step_size=1, threshold=0.01, always_u
         closedset.append((x, y))
     else:
         return
-    flood_fill(int(x + step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, always_up=always_up, mask=mask)
-    flood_fill(int(x - step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, always_up=always_up, mask=mask)
-    flood_fill(int(x), int(y + step_size), val, data, closedset, step_size=step_size, threshold=threshold, always_up=always_up, mask=mask)
-    flood_fill(int(x), int(y - step_size), val, data, closedset, step_size=step_size, threshold=threshold, always_up=always_up, mask=mask)
+
+    if data[x + step_size, y] - this_pt < 0 or not gradient_decent:
+        flood_fill(int(x + step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent, always_up=always_up, mask=mask)
+    if data[x - step_size, y] - this_pt < 0 or not gradient_decent:
+        flood_fill(int(x - step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent, always_up=always_up, mask=mask)
+    if data[x, y + step_size] - this_pt < 0 or not gradient_decent:
+        flood_fill(int(x), int(y + step_size), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent, always_up=always_up, mask=mask)
+    if data[x, y - step_size] - this_pt < 0 or not gradient_decent:
+        flood_fill(int(x), int(y - step_size), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent, always_up=always_up, mask=mask)
 
 
 class Image:
@@ -70,12 +75,12 @@ class Image:
             peak_y, peak_x = np.unravel_index(sources.argmax(), sources.shape)
             peak_val = self.data[peak_y, peak_x]
             peak_points = []
-            flood_fill(peak_y, peak_x, peak_val, self.data, peak_points, mask=self.mask, threshold=0.25)
+            flood_fill(peak_y, peak_x, peak_val, self.data, peak_points, mask=self.mask, threshold=0.5, up=False)
             for point in peak_points:
                 self.mask[point[0], point[1]] = False
             obj = StellarObject(peak_points, peak_val)
-            obj.plot_me(self.data)
             print(f"object masked with {peak_points}")
+            obj.plot_me(self.data)
 
     def cluster(self, fill_points):
         # Make sure that this is run on thread with additional stack memory available else this will likely fail!
@@ -85,7 +90,7 @@ class Image:
             # Subtract 150 to normalise to new coordinate system
             init_x, init_y = centroid[1] - self.boundary, centroid[0] - self.boundary
             cluster_points = []
-            flood_fill(init_x, init_y, self.data[init_x, init_y], self.data, cluster_points, step_size=1, threshold=0.25, always_up=True)
+            flood_fill(init_x, init_y, self.data[init_x, init_y], self.data, cluster_points, step_size=1, threshold=0.4, always_up=True)
             cluster_points_trp = np.transpose(cluster_points)
             plt.scatter(cluster_points_trp[1], cluster_points_trp[0], s=1, label=f"Cluster")
         plt.show()
