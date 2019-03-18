@@ -10,12 +10,11 @@ import sys, threading
 def flood_fill(x, y, val, data, closedset, step_size=1, threshold=0.01, always_up=False, mask=None):
     if sys.getrecursionlimit() < 1000:
         raise RuntimeError("Insufficient recursion depth to allow the flood fill to commence")
-
     if x >= data.shape[0] or y >= data.shape[1] or x < 0 or y < 0:
         return
     if (x, y) in closedset:
         return
-    if mask:
+    if mask is not None:
         if not mask[x, y]:
             return
     this_pt = int(data[x, y])
@@ -40,7 +39,6 @@ class Image:
             self.data = fits_file[0].data  # Rawdatafile in y,x
             self.mask = np.ones(self.data.shape, dtype=bool)
             self.height, self.width = self.data.shape
-            print(self.data.shape)
         self.boundary = 0
 
     def create_mask_map(self, cut_off, rect_masks=None, cluster_centroids=None):
@@ -66,23 +64,18 @@ class Image:
 
     def create_catalogue(self):
         # Find brightness non masked object
-        fig, ax = plt.subplots()
-        while True:
-            sources = np.where(self.mask, self.data)
-            print("HIII")
-            if len(sources) <= 0:
-                break
+        sources = self.data * self.mask
+        while max(sources.flatten()) > 0:
+            sources = self.data * self.mask
             peak_y, peak_x = np.unravel_index(sources.argmax(), sources.shape)
             peak_val = self.data[peak_y, peak_x]
             peak_points = []
-            flood_fill(peak_y, peak_x, peak_val, self.data, peak_points, mask=self.mask)
+            flood_fill(peak_y, peak_x, peak_val, self.data, peak_points, mask=self.mask, threshold=0.25)
             for point in peak_points:
                 self.mask[point[0], point[1]] = False
-            ax.imshow(np.arcsinh(self.data * self.mask), origin="lower", cmap='jet', aspect="equal")
-            plt.show()
-            plt.pause(0.05)
             obj = StellarObject(peak_points, peak_val)
-            obj.set_bounding_rect(self.data)
+            obj.plot_me(self.data)
+            print(f"object masked with {peak_points}")
 
     def cluster(self, fill_points):
         # Make sure that this is run on thread with additional stack memory available else this will likely fail!
@@ -127,7 +120,7 @@ class Image:
 
         plt.plot(x, gaus(x, *popt), 'ro:', label='Gaussian Fit')
         plt.figure(1)
-        plt.plot(x, (y - gaus(x, *popt)) / y, label='Signal')
+        # plt.plot(x, (y - gaus(x, *popt)) / y, label='Signal')
         # plt.xlim(3390, 3440)
         # plt.ylim(-0.1, 0.2)
 
@@ -184,8 +177,8 @@ class Image:
         plt.show()
 
     def plotarcsinh(self):
-        fig, ax = plt.subplots(figsize=(6, 11), dpi=800)
-        sky = ax.imshow(np.arcsinh(self.data*self.mask),origin="lower",cmap="gray",aspect="equal")
+        fig, ax = plt.subplots(figsize=(6, 11), dpi=200)
+        sky = ax.imshow(np.arcsinh(self.data * self.mask), origin="lower", cmap="gray", aspect="equal")
         fig.colorbar(sky)
         plt.show()
 
@@ -259,7 +252,7 @@ if __name__ == '__main__':
         img.create_mask_map(50000, rect_masks=bleeding_edge)
         img.trim(150)
         img.plotarcsinh()
-        img.histogram(3500, 3360)
+        img.histogram(3500, 3350)
         img.filter_by_sigma(5)
         img.create_catalogue()
 
