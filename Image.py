@@ -14,16 +14,19 @@ def flood_fill(x, y, val, data, closedset, step_size=1, threshold=0.01, always_u
         return
     if (x, y) in closedset:
         return
+    if mask:
+        if not mask[x, y]:
+            return
     this_pt = int(data[x, y])
     val_i = int(val)
     if abs(this_pt - val_i) / val_i <= threshold or (always_up and data[x, y] >= val):
         closedset.append((x, y))
     else:
         return
-    flood_fill(int(x + step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, always_up=True)
-    flood_fill(int(x - step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, always_up=True)
-    flood_fill(int(x), int(y + step_size), val, data, closedset, step_size=step_size, threshold=threshold, always_up=True)
-    flood_fill(int(x), int(y - step_size), val, data, closedset, step_size=step_size, threshold=threshold, always_up=True)
+    flood_fill(int(x + step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, always_up=always_up, mask=mask)
+    flood_fill(int(x - step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, always_up=always_up, mask=mask)
+    flood_fill(int(x), int(y + step_size), val, data, closedset, step_size=step_size, threshold=threshold, always_up=always_up, mask=mask)
+    flood_fill(int(x), int(y - step_size), val, data, closedset, step_size=step_size, threshold=threshold, always_up=always_up, mask=mask)
 
 
 class Image:
@@ -59,7 +62,21 @@ class Image:
         self.height, self.width = self.data.shape
 
     def create_catalogue(self):
-        pass
+        # Find brightest non masked object
+
+        while True:
+            sources = np.where(self.mask, self.data)
+            if len(sources) <= 0:
+                break
+            peak_y, peak_x = np.unravel_index(sources.argmax(), sources.shape)
+            peak_val = self.data[peak_y, peak_x]
+            peak_points = []
+            flood_fill(peak_y, peak_x, peak_val, self.data, peak_points, mask=self.mask)
+
+            for point in peak_points:
+                self.mask[point[1], point[0]] = False
+
+
 
     def cluster(self, fill_points):
         # Make sure that this is run on thread with additional stack memory available else this will likely fail!
@@ -101,7 +118,7 @@ class Image:
         print(f"p_error = {perr}")
         print(f"The amplitude is {popt[0]}, The mean is {popt[1]}, sigma = {popt[2]}")
         print(f"The error from sigma is estimated at: {popt[2] / np.sqrt(len(self.data))}")
-        self.background = popt[1]
+
         # plt.plot(x, gaus(x, *popt), 'ro:', label='Gaussian Fit')
         plt.figure(1)
         plt.plot(x, (y - gaus(x, *popt)) / y, label='Signal')
@@ -114,6 +131,23 @@ class Image:
         plt.legend()
 
         plt.show()
+
+        self.background = popt[1]
+        self.background_sigma = popt[2]
+
+    def filter_by_sigma(self, sigma_count=3):
+        """
+        Mask anything that is under sigma away from the background mean
+        :param sigma:
+        :return:
+        """
+        assert self.background
+        assert self.background_sigma
+
+        for y in range(len(self.data)):
+            for x in range(len(self.data[y])):
+                if self.data[y, x] - self.background < sigma_count * self.background_sigma:
+                    self.mask[y, x] = False
 
     # Flush file to txt
     def flush_data_to_txt(self, txt_filename=None):
@@ -166,6 +200,7 @@ if __name__ == '__main__':
         # Run all executable code here to ensure that
         # As Matplotlib is NOT thread safe running any plt commands outside of main may cause unexpected behaviour!
         pass
+
 
     sys.setrecursionlimit(10 ** 5)
     threading.stack_size(67108864)  # Largest possible stack size of 64MB on Windows
