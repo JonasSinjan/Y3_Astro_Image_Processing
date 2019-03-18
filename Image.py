@@ -2,6 +2,7 @@ from astropy.io import fits
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from StellarObject import StellarObject
 from scipy.optimize import curve_fit
 import sys, threading
 
@@ -62,8 +63,7 @@ class Image:
         self.height, self.width = self.data.shape
 
     def create_catalogue(self):
-        # Find brightest non masked object
-
+        # Find brightness non masked object
         while True:
             sources = np.where(self.mask, self.data)
             if len(sources) <= 0:
@@ -75,8 +75,7 @@ class Image:
 
             for point in peak_points:
                 self.mask[point[1], point[0]] = False
-
-
+            obj = StellarObject(peak_points, peak_val)
 
     def cluster(self, fill_points):
         # Make sure that this is run on thread with additional stack memory available else this will likely fail!
