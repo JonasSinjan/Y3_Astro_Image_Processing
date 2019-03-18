@@ -40,6 +40,7 @@ class Image:
             self.data = fits_file[0].data  # Rawdatafile in y,x
             self.mask = np.ones(self.data.shape, dtype=bool)
             self.height, self.width = self.data.shape
+            print(self.data.shape)
         self.boundary = 0
 
     def create_mask_map(self, cut_off, rect_masks=None, cluster_centroids=None):
@@ -60,22 +61,26 @@ class Image:
     def trim(self, boundary):
         self.boundary = boundary
         self.data = self.data[boundary:-boundary, boundary:-boundary]
-        self.mask = self.mask[boundary:-boundary,boundary:-boundary]
+        self.mask = self.mask[boundary:-boundary, boundary:-boundary]
         self.height, self.width = self.data.shape
 
     def create_catalogue(self):
         # Find brightness non masked object
+        fig, ax = plt.subplots()
         while True:
             sources = np.where(self.mask, self.data)
+            print("HIII")
             if len(sources) <= 0:
                 break
             peak_y, peak_x = np.unravel_index(sources.argmax(), sources.shape)
             peak_val = self.data[peak_y, peak_x]
             peak_points = []
             flood_fill(peak_y, peak_x, peak_val, self.data, peak_points, mask=self.mask)
-
             for point in peak_points:
                 self.mask[point[0], point[1]] = False
+            ax.imshow(np.arcsinh(self.data * self.mask), origin="lower", cmap='jet', aspect="equal")
+            plt.show()
+            plt.pause(0.05)
             obj = StellarObject(peak_points, peak_val)
             obj.set_bounding_rect(self.data)
 
@@ -178,6 +183,12 @@ class Image:
         fig.colorbar(sky)
         plt.show()
 
+    def plotarcsinh(self):
+        fig, ax = plt.subplots(figsize=(6, 11), dpi=800)
+        sky = ax.imshow(np.arcsinh(self.data*self.mask),origin="lower",cmap="gray",aspect="equal")
+        fig.colorbar(sky)
+        plt.show()
+
     def mag(self):
         inst_mag_arr = np.zeros((len(self.data), len(self.data[0])))
         var1, var2 = len(self.data[0]), len(self.data)
@@ -241,8 +252,10 @@ if __name__ == '__main__':
         img = Image("A1_mosaic.fits")
         img.create_mask_map(50000, rect_masks=bleeding_edge)
         img.trim(150)
-        img.plotlin()
-
+        img.plotarcsinh()
+        img.histogram(3500, 3360)
+        img.filter_by_sigma(5)
+        img.create_catalogue()
 
 
     sys.setrecursionlimit(10 ** 5)
