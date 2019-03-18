@@ -120,7 +120,7 @@ class Image:
         print(f"The amplitude is {popt[0]}, The mean is {popt[1]}, sigma = {popt[2]}")
         print(f"The error from sigma is estimated at: {popt[2] / np.sqrt(len(self.data))}")
 
-        # plt.plot(x, gaus(x, *popt), 'ro:', label='Gaussian Fit')
+        plt.plot(x, gaus(x, *popt), 'ro:', label='Gaussian Fit')
         plt.figure(1)
         plt.plot(x, (y - gaus(x, *popt)) / y, label='Signal')
         # plt.xlim(3390, 3440)
@@ -232,6 +232,12 @@ if __name__ == '__main__':
          'bright': (112, 610), 'name': 'Other Star 4'},
         {'tleft': (2106, 3800),
          'bright': (2160, 3714), 'name': 'Other Star 5'},
+        {'tleft': (1393, 3010),
+         'bright': (1438, 2957), 'name': 'Central Star Bot miss'},
+        {'tleft': (1393, 3519),
+         'bright': (1509, 3438), 'name': 'Central Star Top miss'},
+        {'tleft': (1393, 3519),
+         'bright': (1509, 3438), 'name': 'Central Star Bot miss 2'},
     ]
 
 
