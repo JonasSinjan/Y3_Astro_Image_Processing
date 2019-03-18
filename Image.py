@@ -36,7 +36,7 @@ class Image:
         self.filename = filename
         with fits.open(filename) as fits_file:
             self.known_magnitude = fits_file[0].header["MAGZPT"]
-            self.known_magnitude_err = fits_file[0].header["MAGZR"]
+            self.known_magnitude_err = fits_file[0].header["MAGZRR"]
             self.data = fits_file[0].data  # Rawdatafile in y,x
             self.mask = np.ones(self.data.shape, dtype=bool)
             self.height, self.width = self.data.shape
@@ -46,8 +46,8 @@ class Image:
         self.mask = (self.data <= cut_off)  # Automatically create mask map based off cut off
         if rect_masks:
             for rect in rect_masks:
-                t_left = rect["tleft"] - self.boundary
-                b_right = rect["bright"] - self.boundary
+                t_left = np.array(rect["tleft"]) - self.boundary
+                b_right = np.array(rect["bright"]) - self.boundary
                 self.mask[b_right[1]:t_left[1], t_left[0]:b_right[0]] = False
         if cluster_centroids:
             for centroid in cluster_centroids:
@@ -60,6 +60,7 @@ class Image:
     def trim(self, boundary):
         self.boundary = boundary
         self.data = self.data[boundary:-boundary, boundary:-boundary]
+        self.mask = self.mask[boundary:-boundary,boundary:-boundary]
         self.height, self.width = self.data.shape
 
     def create_catalogue(self):
@@ -74,8 +75,9 @@ class Image:
             flood_fill(peak_y, peak_x, peak_val, self.data, peak_points, mask=self.mask)
 
             for point in peak_points:
-                self.mask[point[1], point[0]] = False
+                self.mask[point[0], point[1]] = False
             obj = StellarObject(peak_points, peak_val)
+            obj.set_bounding_rect(self.data)
 
     def cluster(self, fill_points):
         # Make sure that this is run on thread with additional stack memory available else this will likely fail!
@@ -195,10 +197,52 @@ class Image:
 
 
 if __name__ == '__main__':
+    cluster_centroid = [
+        (1445, 3193),
+        (1446, 316)
+    ]
+    bleeding_edge = [
+        {'tleft': (1428, 4608),
+         'bright': (1445, 3509), 'name': 'Above Cen Star'},
+        {'tleft': (1427, 2938),
+         'bright': (1445, 0), 'name': 'Below Cen Star'},
+        {'tleft': (1026, 370),
+         'bright': (1703, 315), 'name': 'Xmas 1'},
+        {'tleft': (1394, 279),
+         'bright': (1475, 217), 'name': 'Xmas 2'},
+        {'tleft': (1288, 164),
+         'bright': (1521, 124), 'name': 'Xmas 3'},
+        {'tleft': (1021, 359),
+         'bright': (1702, 316), 'name': 'Xmas 4'},
+        {'tleft': (1634, 61),
+         'bright': (1717, 2), 'name': 'Xmas 5'},
+        {'tleft': (1100, 442),
+         'bright': (1642, 424), 'name': 'Xmas 6'},
+        {'tleft': (1402, 469),
+         'bright': (1482, 442), 'name': 'Xmas 7'},
+        {'tleft': (1200, 3446),
+         'bright': (1659, 2967), 'name': 'Central Star'},
+        {'tleft': (725, 3426),
+         'bright': (818, 3209), 'name': 'Other Star 1'},
+        {'tleft': (865, 2358),
+         'bright': (946, 2223), 'name': 'Other Star 2'},
+        {'tleft': (935, 2837),
+         'bright': (996, 2708), 'name': 'Other Star 3'},
+        {'tleft': (19, 710),
+         'bright': (112, 610), 'name': 'Other Star 4'},
+        {'tleft': (2106, 3800),
+         'bright': (2160, 3714), 'name': 'Other Star 5'},
+    ]
+
+
     def main():
         # Run all executable code here to ensure that
         # As Matplotlib is NOT thread safe running any plt commands outside of main may cause unexpected behaviour!
-        pass
+        img = Image("A1_mosaic.fits")
+        img.create_mask_map(50000, rect_masks=bleeding_edge)
+        img.trim(150)
+        img.plotlin()
+
 
 
     sys.setrecursionlimit(10 ** 5)

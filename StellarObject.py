@@ -4,8 +4,8 @@ class StellarObject:
         self.points = points
         self.peak_val = peak_val
 
-    def set_bounding_rect(self):
+    def set_bounding_rect(self,data,scale=1.2):
         pass
 
-    def set_bounding_circle(self):
+    def set_bounding_circle(self,data):
         pass
