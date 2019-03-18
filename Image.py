@@ -234,10 +234,10 @@ if __name__ == '__main__':
          'bright': (2160, 3714), 'name': 'Other Star 5'},
         {'tleft': (1393, 3010),
          'bright': (1438, 2957), 'name': 'Central Star Bot miss'},
-        {'tleft': (1393, 3519),
-         'bright': (1509, 3438), 'name': 'Central Star Top miss'},
-        {'tleft': (1393, 3519),
-         'bright': (1509, 3438), 'name': 'Central Star Bot miss 2'},
+        {'tleft': (1410, 3530),
+         'bright': (1460, 3438), 'name': 'Central Star Top miss'},
+        {'tleft': (1430, 3019),
+         'bright': (1444, 2920), 'name': 'Central Star Bot miss 2'},
     ]
 
 
