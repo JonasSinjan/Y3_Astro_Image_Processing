@@ -23,14 +23,14 @@ def flood_fill(x, y, val, data, closedset, step_size=1, threshold=0.01, gradient
         closedset.append((x, y))
     else:
         return
-
-    if data[x + step_size, y] - this_pt < 0 or not gradient_decent:
+    # Have a deep think here about whether this is working correctly.
+    if (data[x + step_size, y] - this_pt)/this_pt <= 0.05 or not gradient_decent:
         flood_fill(int(x + step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent, always_up=always_up, mask=mask)
-    if data[x - step_size, y] - this_pt < 0 or not gradient_decent:
+    if (data[x - step_size, y] - this_pt)/this_pt <= 0.05 or not gradient_decent:
         flood_fill(int(x - step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent, always_up=always_up, mask=mask)
-    if data[x, y + step_size] - this_pt < 0 or not gradient_decent:
+    if (data[x, y + step_size] - this_pt)/this_pt <= 0.05 or not gradient_decent:
         flood_fill(int(x), int(y + step_size), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent, always_up=always_up, mask=mask)
-    if data[x, y - step_size] - this_pt < 0 or not gradient_decent:
+    if (data[x, y - step_size] - this_pt)/this_pt <= 0.05 or not gradient_decent:
         flood_fill(int(x), int(y - step_size), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent, always_up=always_up, mask=mask)
 
 
@@ -75,12 +75,12 @@ class Image:
             peak_y, peak_x = np.unravel_index(sources.argmax(), sources.shape)
             peak_val = self.data[peak_y, peak_x]
             peak_points = []
-            flood_fill(peak_y, peak_x, peak_val, self.data, peak_points, mask=self.mask, threshold=0.5, up=False)
-            for point in peak_points:
-                self.mask[point[0], point[1]] = False
+            flood_fill(peak_y, peak_x, peak_val, self.data, peak_points, mask=self.mask, threshold=0.75, gradient_decent=True)
             obj = StellarObject(peak_points, peak_val)
             print(f"object masked with {peak_points}")
-            obj.plot_me(self.data)
+            obj.plot_me(self.data, self.mask)
+            for point in peak_points:
+                self.mask[point[0], point[1]] = False
 
     def cluster(self, fill_points):
         # Make sure that this is run on thread with additional stack memory available else this will likely fail!
