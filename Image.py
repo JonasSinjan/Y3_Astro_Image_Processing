@@ -77,17 +77,18 @@ class Image:
     def create_catalogue(self):
         # Find brightness non masked object
         sources = self.data * self.mask
+        list = []
+        i = 0
         while max(sources.flatten()) > 0:
             sources = self.data * self.mask
             peak_y, peak_x = np.unravel_index(sources.argmax(), sources.shape)
             peak_val = self.data[peak_y, peak_x]
             peak_points = []
             flood_fill(peak_y, peak_x, peak_val, self.data, peak_points, mask=self.mask, threshold=0.85, gradient_decent=True)
-            if len(peak_points) < 0:
-                continue
+            if len(peak_points) == 0:
+                break
             obj = StellarObject(peak_points, peak_val)
             print(f"object masked with {peak_points}")
-            i = 0
             if 0.95 <= len(peak_points)/obj.bounding_rect.get_area() or len(peak_points)/obj.bounding_rect.get_area() <= 0.3:
                 # print("This object doesn't seem very circular.")
                 # obj.plot_me(self.data, self.mask)
@@ -100,7 +101,7 @@ class Image:
                     self.mask[point[0], point[1]] = False
                 i += 1
                 continue
-            list = []
+
             list.append(obj)
             #add to catalogue
             for point in peak_points:
@@ -296,7 +297,7 @@ if __name__ == '__main__':
         #img.histogram(3500, 3350)
         img.filter_by_sigma(5)
         list, rejected = img.create_catalogue()
-        print(len(list), len(rejected))
+        print(len(list), rejected)
 
 
     sys.setrecursionlimit(10 ** 5)
