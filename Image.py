@@ -29,13 +29,13 @@ def flood_fill(x, y, val, data, closedset, step_size=1, threshold=0.01, gradient
     else:
         return
     # Have a deep think here about whether this is working correctly.
-    if (data[x + step_size, y] - this_pt)/this_pt <= 0.1 or not gradient_decent:
+    if (data[x + step_size, y] - this_pt) / this_pt <= 0.1 or not gradient_decent:
         flood_fill(int(x + step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent, always_up=always_up, mask=mask)
-    if (data[x - step_size, y] - this_pt)/this_pt <= 0.1 or not gradient_decent:
+    if (data[x - step_size, y] - this_pt) / this_pt <= 0.1 or not gradient_decent:
         flood_fill(int(x - step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent, always_up=always_up, mask=mask)
-    if (data[x, y + step_size] - this_pt)/this_pt <= 0.1 or not gradient_decent:
+    if (data[x, y + step_size] - this_pt) / this_pt <= 0.1 or not gradient_decent:
         flood_fill(int(x), int(y + step_size), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent, always_up=always_up, mask=mask)
-    if (data[x, y - step_size] - this_pt)/this_pt <= 0.1 or not gradient_decent:
+    if (data[x, y - step_size] - this_pt) / this_pt <= 0.1 or not gradient_decent:
         flood_fill(int(x), int(y - step_size), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent, always_up=always_up, mask=mask)
 
 
@@ -86,7 +86,8 @@ class Image:
             obj = StellarObject(peak_points, peak_val)
             print(f"object masked with {peak_points}")
             i = 0
-            if 0.95 <= len(peak_points)/obj.bounding_rect.get_area() or len(peak_points)/obj.bounding_rect.get_area() <= 0.3:
+            obj.plot_me(self.data, self.mask)
+            if 0.95 <= len(peak_points) / obj.bounding_rect.get_area() or len(peak_points) / obj.bounding_rect.get_area() <= 0.3:
                 # print("This object doesn't seem very circular.")
                 # obj.plot_me(self.data, self.mask)
                 # reject = input("Accept: (Y/N):  ") == "N"
@@ -100,7 +101,7 @@ class Image:
                 continue
             list = []
             list.append(obj)
-            #add to catalogue
+            # add to catalogue
             for point in peak_points:
                 self.mask[point[0], point[1]] = False
 
@@ -163,7 +164,7 @@ class Image:
         self.background = popt[1]
         self.background_sigma = popt[2]
 
-    def filter_by_sigma(self, sigma_count = 3):
+    def filter_by_sigma(self, sigma_count=3):
         """
         Mask anything that is under sigma away from the background mean
         :param sigma:
@@ -207,7 +208,7 @@ class Image:
 
     def plotarcsinh(self):
         fig, ax = plt.subplots(figsize=(6, 11), dpi=200)
-        sky = ax.imshow(np.arcsinh(self.data*self.mask),origin="lower",cmap="gray",aspect="equal")
+        sky = ax.imshow(np.arcsinh(self.data * self.mask), origin="lower", cmap="gray", aspect="equal")
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
         fig.colorbar(sky)
@@ -232,10 +233,10 @@ class Image:
 
 
 if __name__ == '__main__':
-    #cluster_centroid = [
+    # cluster_centroid = [
     #    (1445, 3193),
     #    (1446, 316)
-    #]
+    # ]
     bleeding_edge = [
         {'tleft': (1420, 4608),
          'bright': (1450, 3509), 'name': 'Above Cen Star'},
@@ -291,7 +292,7 @@ if __name__ == '__main__':
         img.create_mask_map(50000, rect_masks=bleeding_edge)
         img.trim(150)
         img.plotarcsinh()
-        #img.histogram(3500, 3350)
+        # img.histogram(3500, 3350)
         img.filter_by_sigma(5)
         list, rejected = img.create_catalogue()
         print(len(list), len(rejected))
