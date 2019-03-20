@@ -14,6 +14,11 @@ def flood_fill(x, y, val, data, closedset, step_size=1, threshold=0.01, gradient
         return
     if (x, y) in closedset:
         return
+    # No condition to resolve issue for when flood fill works near boundary
+    if x + step_size >= data.shape[0] or y + step_size >= data.shape[1]:
+        return
+    if x - step_size < 0 or y - step_size < 0:
+        return
     if mask is not None:
         if not mask[x, y]:
             return
@@ -80,16 +85,26 @@ class Image:
             flood_fill(peak_y, peak_x, peak_val, self.data, peak_points, mask=self.mask, threshold=0.85, gradient_decent=True)
             obj = StellarObject(peak_points, peak_val)
             print(f"object masked with {peak_points}")
+            i = 0
             if 0.95 <= len(peak_points)/obj.bounding_rect.get_area() or len(peak_points)/obj.bounding_rect.get_area() <= 0.3:
-                print("This object doesn't seem very circular.")
-                obj.plot_me(self.data,self.mask)
-                reject = input("Accept: (Y/N):  ") == "N"
-                if reject:
-                    for point in peak_points:
-                        self.mask[point[0], point[1]] = False
-                    continue
+                # print("This object doesn't seem very circular.")
+                # obj.plot_me(self.data, self.mask)
+                # reject = input("Accept: (Y/N):  ") == "N"
+                # if reject:
+                #     for point in peak_points:
+                #         self.mask[point[0], point[1]] = False
+                #     continue
+                for point in peak_points:
+                    self.mask[point[0], point[1]] = False
+                i += 1
+                continue
+            list = []
+            list.append(obj)
+            #add to catalogue
             for point in peak_points:
                 self.mask[point[0], point[1]] = False
+
+        return list, i
 
     def cluster(self, fill_points):
         # Make sure that this is run on thread with additional stack memory available else this will likely fail!
@@ -278,7 +293,8 @@ if __name__ == '__main__':
         img.plotarcsinh()
         #img.histogram(3500, 3350)
         img.filter_by_sigma(5)
-        img.create_catalogue()
+        list, rejected = img.create_catalogue()
+        print(len(list), len(rejected))
 
 
     sys.setrecursionlimit(10 ** 5)

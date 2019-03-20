@@ -41,6 +41,5 @@ class StellarObject:
         self.bounding_rect = self.BoundingRect(left, bottom, right, top)
 
 
-
     def __str__(self):
         return str(self.points)
