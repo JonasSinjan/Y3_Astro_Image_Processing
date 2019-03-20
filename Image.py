@@ -92,7 +92,7 @@ class Image:
             # Subtract 150 to normalise to new coordinate system
             init_x, init_y = centroid[1] - self.boundary, centroid[0] - self.boundary
             cluster_points = []
-            flood_fill(init_x, init_y, self.data[init_x, init_y], self.data, cluster_points, step_size=1, threshold=0.4, always_up=True)
+            flood_fill(init_x, init_y, self.data[init_x, init_y], self.data, cluster_points, step_size=1, threshold=0.4, always_up=True, gradient_decent=True)
             cluster_points_trp = np.transpose(cluster_points)
             plt.scatter(cluster_points_trp[1], cluster_points_trp[0], s=1, label=f"Cluster")
         plt.show()
@@ -141,7 +141,7 @@ class Image:
         self.background = popt[1]
         self.background_sigma = popt[2]
 
-    def filter_by_sigma(self, sigma_count=5):
+    def filter_by_sigma(self, sigma_count=3):
         """
         Mask anything that is under sigma away from the background mean
         :param sigma:
@@ -185,7 +185,9 @@ class Image:
 
     def plotarcsinh(self):
         fig, ax = plt.subplots(figsize=(6, 11), dpi=200)
-        sky = ax.imshow(np.arcsinh(self.data * self.mask), origin="lower", cmap="gray", aspect="equal")
+        sky = ax.imshow(np.arcsinh(self.data*self.mask),origin="lower",cmap="gray",aspect="equal")
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
         fig.colorbar(sky)
         plt.show()
 
@@ -267,7 +269,7 @@ if __name__ == '__main__':
         img.create_mask_map(50000, rect_masks=bleeding_edge)
         img.trim(150)
         img.plotarcsinh()
-        img.histogram(3500, 3350)
+        #img.histogram(3500, 3350)
         img.filter_by_sigma(5)
         #img.create_catalogue()
 
