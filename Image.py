@@ -83,7 +83,7 @@ class Image:
             peak_val = self.data[peak_y, peak_x]
             peak_points = []
             flood_fill(peak_y, peak_x, peak_val, self.data, peak_points, mask=self.mask, threshold=0.85, gradient_decent=True)
-            if peak_points < 0:
+            if len(peak_points) < 0:
                 continue
             obj = StellarObject(peak_points, peak_val)
             print(f"object masked with {peak_points}")

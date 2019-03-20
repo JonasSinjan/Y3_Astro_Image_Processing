@@ -61,19 +61,23 @@ bleeding_edge = [
      'bright': (2160, 3714), 'name': 'Other Star 5'},
 ]
 
-# Centroids of regions where the flood-fill algorithm will eminate from.
-
-cluster_centroid = [
-    (1445, 3193),
-    (1446, 316)
-]
-
 
 # opening image with astropy
 
 
 def main():
+    def plotlogim(data):
+        fig, ax = plt.subplots()
+        sky = ax.imshow(np.log(data - 3420), origin="lower", cmap='viridis', aspect="equal")
+        fig.colorbar(sky)
+        plt.show()
 
+    def plotlin(data):
+        fig, ax = plt.subplots()
+        sky = ax.imshow(data, origin="lower", cmap='jet', aspect="equal")
+        fig.colorbar(sky)
+        plt.show()
+        # 3D plot of data points and counts
 
     def plotcount(data):
         fig = plt.figure()
@@ -115,17 +119,17 @@ def main():
         print(f"The known magnitude calibration error is {mag_known_err}")
         data_points = hdulist[0].data
 
-
-
-    # for rect in bleeding_edge:
-    #     tleft = np.array(rect["tleft"], dtype=int)
-    #     bright = np.array(rect['bright'], dtype=int)
-    #     # rows, columns
-    #     data_points[bright[1]:tleft[1], tleft[0]:bright[0]] = 3419  # background value
+    for rect in bleeding_edge:
+        tleft = np.array(rect["tleft"], dtype=int)
+        bright = np.array(rect['bright'], dtype=int)
+        # rows, columns
+        data_points[bright[1]:tleft[1], tleft[0]:bright[0]] = 3419  # background value
 
     # remove the edges, first and last 150 columns
     # remove the edges, first and last 150 columns and first and last rows
 
+    data_points = data_points[150:-150, 150:-150]
+    width, height = data_points.shape
     # data_points = np.transpose(data_points)
     # remove bleeding edges
     plotlin(data_points)
@@ -158,9 +162,10 @@ def main():
             flood_fill(init_x, init_y, data_points[init_x, init_y], data_points, cluster_points, step_size=1, threshold=0.25, always_up=True)
             cluster_points_trp = np.transpose(cluster_points)
             plt.scatter(cluster_points_trp[1], cluster_points_trp[0], s=1, label=f"Cluster")
+        plt.legend()
         plt.show()
 
-    cluster(cluster_centroid)
+    #cluster(cluster_centroid)
 
     width, height = data_points.shape
 
@@ -227,6 +232,7 @@ def main():
                     # convert remaining flux into magnitude
                     # update boolean array to say this pixel has been dealt with
 
+        pass
 
 # mag(data_points)
 if __name__ == "__main__":
