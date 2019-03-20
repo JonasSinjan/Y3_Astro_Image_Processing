@@ -80,7 +80,12 @@ class Image:
             flood_fill(peak_y, peak_x, peak_val, self.data, peak_points, mask=self.mask, threshold=0.75, gradient_decent=True)
             obj = StellarObject(peak_points, peak_val)
             print(f"object masked with {peak_points}")
-            obj.plot_me(self.data, self.mask)
+            if 0.95 <= len(peak_points)/obj.bounding_rect.get_area() or len(peak_points)/obj.bounding_rect.get_area() <=0.5:
+                print("This object doesn't seem very circular.")
+                obj.plot_me(self.data,self.mask)
+                accept = input("Accept: (Y/N):  ") == "Y"
+                if not accept:
+                    continue
             for point in peak_points:
                 self.mask[point[0], point[1]] = False
 
