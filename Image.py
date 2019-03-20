@@ -24,13 +24,13 @@ def flood_fill(x, y, val, data, closedset, step_size=1, threshold=0.01, gradient
     else:
         return
     # Have a deep think here about whether this is working correctly.
-    if (data[x + step_size, y] - this_pt)/this_pt <= 0.05 or not gradient_decent:
+    if (data[x + step_size, y] - this_pt)/this_pt <= 0.1 or not gradient_decent:
         flood_fill(int(x + step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent, always_up=always_up, mask=mask)
-    if (data[x - step_size, y] - this_pt)/this_pt <= 0.05 or not gradient_decent:
+    if (data[x - step_size, y] - this_pt)/this_pt <= 0.1 or not gradient_decent:
         flood_fill(int(x - step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent, always_up=always_up, mask=mask)
-    if (data[x, y + step_size] - this_pt)/this_pt <= 0.05 or not gradient_decent:
+    if (data[x, y + step_size] - this_pt)/this_pt <= 0.1 or not gradient_decent:
         flood_fill(int(x), int(y + step_size), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent, always_up=always_up, mask=mask)
-    if (data[x, y - step_size] - this_pt)/this_pt <= 0.05 or not gradient_decent:
+    if (data[x, y - step_size] - this_pt)/this_pt <= 0.1 or not gradient_decent:
         flood_fill(int(x), int(y - step_size), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent, always_up=always_up, mask=mask)
 
 
@@ -45,6 +45,8 @@ class Image:
             self.mask = np.ones(self.data.shape, dtype=bool)
             self.height, self.width = self.data.shape
         self.boundary = 0
+        self.background = 3419.24
+        self.background_sigma = 11.64
 
     def create_mask_map(self, cut_off, rect_masks=None, cluster_centroids=None):
         self.mask = (self.data <= cut_off)  # Automatically create mask map based off cut off
@@ -139,7 +141,7 @@ class Image:
         self.background = popt[1]
         self.background_sigma = popt[2]
 
-    def filter_by_sigma(self, sigma_count=3):
+    def filter_by_sigma(self, sigma_count=5):
         """
         Mask anything that is under sigma away from the background mean
         :param sigma:
@@ -206,15 +208,15 @@ class Image:
 
 
 if __name__ == '__main__':
-    cluster_centroid = [
-        (1445, 3193),
-        (1446, 316)
-    ]
+    #cluster_centroid = [
+    #    (1445, 3193),
+    #    (1446, 316)
+    #]
     bleeding_edge = [
-        {'tleft': (1428, 4608),
-         'bright': (1445, 3509), 'name': 'Above Cen Star'},
-        {'tleft': (1427, 2938),
-         'bright': (1445, 0), 'name': 'Below Cen Star'},
+        {'tleft': (1420, 4608),
+         'bright': (1450, 3509), 'name': 'Above Cen Star'},
+        {'tleft': (1415, 2967),
+         'bright': (1455, 0), 'name': 'Below Cen Star'},
         {'tleft': (1026, 370),
          'bright': (1703, 315), 'name': 'Xmas 1'},
         {'tleft': (1394, 279),
@@ -247,6 +249,14 @@ if __name__ == '__main__':
          'bright': (1460, 3438), 'name': 'Central Star Top miss'},
         {'tleft': (1430, 3019),
          'bright': (1444, 2920), 'name': 'Central Star Bot miss 2'},
+        {'tleft': (1384, 1807),
+         'bright': (1450, 1753), 'name': 'Other Star 6'},
+        {'tleft': (2062, 1450),
+         'bright': (2115, 1379), 'name': 'Other Star 7'},
+        {'tleft': (2178, 3331),
+         'bright': (2302, 3233), 'name': 'Other Star 8'},
+        {'tleft': (2106, 2333),
+         'bright': (2160, 2279), 'name': 'Other Star 9'},
     ]
 
 
@@ -259,7 +269,7 @@ if __name__ == '__main__':
         img.plotarcsinh()
         img.histogram(3500, 3350)
         img.filter_by_sigma(5)
-        img.create_catalogue()
+        #img.create_catalogue()
 
 
     sys.setrecursionlimit(10 ** 5)
