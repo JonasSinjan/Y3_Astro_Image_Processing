@@ -271,7 +271,7 @@ if __name__ == '__main__':
         img.plotarcsinh()
         #img.histogram(3500, 3350)
         img.filter_by_sigma(5)
-        #img.create_catalogue()
+        img.create_catalogue()
 
 
     sys.setrecursionlimit(10 ** 5)
