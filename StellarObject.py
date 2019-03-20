@@ -34,10 +34,10 @@ class StellarObject:
 
     def set_bouding_rect(self):
         y_points, x_points = np.transpose(self.points)
-        left = min(x_points)
-        bottom = min(y_points)
-        right = max(x_points)
-        top = max(y_points)
+        left = min(x_points)-1
+        bottom = min(y_points)-1
+        right = max(x_points)+1
+        top = max(y_points)+1
         self.bounding_rect = self.BoundingRect(left, bottom, right, top)
 
 

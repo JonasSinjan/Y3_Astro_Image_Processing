@@ -46,7 +46,7 @@ class Image:
             self.height, self.width = self.data.shape
         self.boundary = 0
         self.background = 3419.24
-        self.background_sigma = 11.64
+        self.background_sigma = 11.6449
 
     def create_mask_map(self, cut_off, rect_masks=None, cluster_centroids=None):
         self.mask = (self.data <= cut_off)  # Automatically create mask map based off cut off
@@ -77,14 +77,16 @@ class Image:
             peak_y, peak_x = np.unravel_index(sources.argmax(), sources.shape)
             peak_val = self.data[peak_y, peak_x]
             peak_points = []
-            flood_fill(peak_y, peak_x, peak_val, self.data, peak_points, mask=self.mask, threshold=0.75, gradient_decent=True)
+            flood_fill(peak_y, peak_x, peak_val, self.data, peak_points, mask=self.mask, threshold=0.85, gradient_decent=True)
             obj = StellarObject(peak_points, peak_val)
             print(f"object masked with {peak_points}")
-            if 0.95 <= len(peak_points)/obj.bounding_rect.get_area() or len(peak_points)/obj.bounding_rect.get_area() <=0.5:
+            if 0.95 <= len(peak_points)/obj.bounding_rect.get_area() or len(peak_points)/obj.bounding_rect.get_area() <= 0.3:
                 print("This object doesn't seem very circular.")
                 obj.plot_me(self.data,self.mask)
-                accept = input("Accept: (Y/N):  ") == "Y"
-                if not accept:
+                reject = input("Accept: (Y/N):  ") == "N"
+                if reject:
+                    for point in peak_points:
+                        self.mask[point[0], point[1]] = False
                     continue
             for point in peak_points:
                 self.mask[point[0], point[1]] = False
@@ -146,7 +148,7 @@ class Image:
         self.background = popt[1]
         self.background_sigma = popt[2]
 
-    def filter_by_sigma(self, sigma_count=3):
+    def filter_by_sigma(self, sigma_count = 3):
         """
         Mask anything that is under sigma away from the background mean
         :param sigma:
