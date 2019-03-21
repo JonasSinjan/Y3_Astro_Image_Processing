@@ -25,12 +25,25 @@ class StellarObject:
             return [(y, x) for y in range(self.bottom, self.top + 1) for x in range(self.left, self.right + 1)]
 
         @staticmethod
-        def scale_rect_origin(obj, sf):
+        def scale_rect_origin(obj, data, sf):
             width = obj.width * sf
             height = obj.height * sf
             origin_x, origin_y = obj.get_origin()
-            return StellarObject.BoundingRect(origin_x - width / 2, origin_y - height / 2, origin_x + width / 2,
-                                              origin_y + height / 2)
+            # need to set case for if the scaled bounding rectangle hits the boundary of the image
+            left = origin_x - width / 2
+            right = origin_x + width / 2
+            top = origin_y + height / 2
+            bot = origin_y - height / 2
+            if right >= data.shape[0]:
+                right = data.shape[0]
+            if top >= data.shape[1]:
+                top = data.shape[1]
+            if left < 0:
+                left = 0
+            if bot < 0:
+                bot = 0
+            return StellarObject.BoundingRect(left, bot, right,
+                                              top)
 
         def get_area(self):
             return self.height * self.width
@@ -59,7 +72,7 @@ class StellarObject:
         self.bounding_rect = self.BoundingRect(left, bottom, right, top)
 
     def get_background_rect(self, data, relative_mag, sf=1.5):
-        self.bg_bound = self.BoundingRect.scale_rect_origin(self.bounding_rect, sf)
+        self.bg_bound = self.BoundingRect.scale_rect_origin(self.bounding_rect, data, sf)
         bg_pts = filter(lambda x: x not in self.points, self.bg_bound.get_enc_points())
         total_count = [data[i] for i in self.bg_bound.get_enc_points()]
         bg_vals = [data[val] for val in bg_pts if data[val] <= 3500]
@@ -67,9 +80,9 @@ class StellarObject:
         total_background_count = self.local_background * len(
             self.bg_bound.get_enc_points())  # total background counts for all pixels
         self.source_count = total_count - total_background_count  # counts just from object
-        self.mag = relative_mag - 2.5*np.log10(self.source_count)
-        #plt.hist(bg_vals)
-        #plt.show()
+        self.mag = relative_mag - 2.5 * np.log10(self.source_count)
+        # plt.hist(bg_vals)
+        # plt.show()
 
     def set_magnitudes(self, instr_zero_pt):
         self.relative_magnitude = instr_zero_pt - 2.5 * np.log10(self.peak_val)
