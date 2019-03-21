@@ -317,7 +317,7 @@ if __name__ == '__main__':
         # img.histogram(3500, 3350)
         img.filter_by_sigma(5)
         print(img.data.shape[0], img.data.shape[1])
-        catalogue, rejected = img.create_catalogue(filename=True)
+        catalogue, rejected = img.create_catalogue(filename="survey.cat")
 
         print(len(catalogue), rejected)
         mag_arr = [0] * len(catalogue)
