@@ -331,15 +331,17 @@ if __name__ == '__main__':
         plt.figure()
         plt.hist(mag_arr)
         plt.show()
+
         m = np.arange(9, 16, 0.5)
         N = [(len(list(filter(lambda x: x.mag < m_i, catalogue)))) for m_i in m]
         plt.plot(m, N)
         plt.show()
+
         plt.figure()
         slope, intercept, rvalue, pvalue, stderr = linregress(m, np.log(N))
         fit_str = f"Linear Regression Fit\nSlope:{round(slope, 3)}±{round(stderr,3)}\nR^2:{round(rvalue ** 2, 3)}"
         plt.plot(m, [i*slope+intercept for i in m], 'b-', label=fit_str)
-        plt.plot(m, np.log(N), 'r.', linestyle='--', label='Raw Data')
+        plt.plot(m, np.log10(N), 'r.', linestyle='--', label='Raw Data')
         plt.legend()
         plt.show()
 
