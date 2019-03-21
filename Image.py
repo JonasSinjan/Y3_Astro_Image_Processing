@@ -95,7 +95,6 @@ class Image:
                 break
             obj = StellarObject(peak_points, peak_val)
             obj.get_background_rect(self.data, self.known_magnitude, 3)
-            print(f"object masked with {peak_points}")
             if 0.95 <= len(peak_points) / obj.bounding_rect.get_area() or len(peak_points) / obj.bounding_rect.get_area() <= 0.3:
                 # print("This object doesn't seem very circular.")
                 obj.plot_me(self.data, self.mask)
@@ -319,7 +318,7 @@ if __name__ == '__main__':
         plt.hist(mag_arr)
         plt.show()
         m = np.arange(8,20,0.5)
-        N = [(len(filter(lambda x: x.mag < m_i, catalogue))) for m_i in m]
+        N = [(len(list(filter(lambda x: x.mag < m_i, catalogue)))) for m_i in m]
         plt.plot(m,N)
         plt.show()
 
