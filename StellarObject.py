@@ -34,16 +34,19 @@ class StellarObject:
             right = origin_x + width / 2
             top = origin_y + height / 2
             bot = origin_y - height / 2
-            if right >= data.shape[0]-1:
-                right = data.shape[0]-1
-            if top >= data.shape[1]-1:
-                top = data.shape[1]-1
+            if right >= data.shape[1]:
+                right = data.shape[1]
+            if top >= data.shape[0]:
+                top = data.shape[0]
             if left < 0:
                 left = 0
             if bot < 0:
                 bot = 0
-            return StellarObject.BoundingRect(left, bot, right,
-                                              top)
+            assert right <= data.shape[1]
+            assert top <= data.shape[0]
+            assert left >= 0
+            assert bot >= 0
+            return StellarObject.BoundingRect(left, bot, right, top)
 
         def get_area(self):
             return self.height * self.width
@@ -80,6 +83,7 @@ class StellarObject:
         total_background_count = self.local_background * len(
             self.bg_bound.get_enc_points())  # total background counts for all pixels
         self.source_count = total_count - total_background_count  # counts just from object
+        assert self.source_count >= 0
         self.mag = relative_mag - 2.5 * np.log10(self.source_count)
         # plt.hist(bg_vals)
         # plt.show()
