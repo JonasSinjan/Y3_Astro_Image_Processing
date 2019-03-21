@@ -87,10 +87,6 @@ class StellarObject:
         # plt.hist(bg_vals)
         # plt.show()
 
-    def set_magnitudes(self, instr_zero_pt):
-        self.relative_magnitude = instr_zero_pt - 2.5 * np.log10(self.peak_val)
-
-
 
 
     def __str__(self):

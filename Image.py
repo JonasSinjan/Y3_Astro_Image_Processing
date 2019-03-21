@@ -318,6 +318,12 @@ if __name__ == '__main__':
         plt.figure()
         plt.hist(mag_arr)
         plt.show()
+        m = np.arange(8,20,0.5)
+        N = [(len(filter(lambda x: x.mag < m_i, catalogue))) for m_i in m]
+        plt.plot(m,N)
+        plt.show()
+
+
 
 
     sys.setrecursionlimit(10 ** 5)
