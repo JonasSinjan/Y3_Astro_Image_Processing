@@ -1,10 +1,12 @@
-from astropy.io import fits
-import numpy as np
+import sys
+import threading
+
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from StellarObject import StellarObject
+import numpy as np
+from astropy.io import fits
 from scipy.optimize import curve_fit
-import sys, threading
+
+from StellarObject import StellarObject
 
 
 def flood_fill(x, y, val, data, closedset, step_size=1, threshold=0.01, gradient_decent=False, always_up=False, mask=None):
@@ -30,13 +32,17 @@ def flood_fill(x, y, val, data, closedset, step_size=1, threshold=0.01, gradient
         return
     # Have a deep think here about whether this is working correctly.
     if (data[x + step_size, y] - this_pt) / this_pt <= 0.1 or not gradient_decent:
-        flood_fill(int(x + step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent, always_up=always_up, mask=mask)
+        flood_fill(int(x + step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent,
+                   always_up=always_up, mask=mask)
     if (data[x - step_size, y] - this_pt) / this_pt <= 0.1 or not gradient_decent:
-        flood_fill(int(x - step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent, always_up=always_up, mask=mask)
+        flood_fill(int(x - step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent,
+                   always_up=always_up, mask=mask)
     if (data[x, y + step_size] - this_pt) / this_pt <= 0.1 or not gradient_decent:
-        flood_fill(int(x), int(y + step_size), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent, always_up=always_up, mask=mask)
+        flood_fill(int(x), int(y + step_size), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent,
+                   always_up=always_up, mask=mask)
     if (data[x, y - step_size] - this_pt) / this_pt <= 0.1 or not gradient_decent:
-        flood_fill(int(x), int(y - step_size), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent, always_up=always_up, mask=mask)
+        flood_fill(int(x), int(y - step_size), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent,
+                   always_up=always_up, mask=mask)
 
 
 class Image:
@@ -88,8 +94,9 @@ class Image:
             if len(peak_points) == 0:
                 break
             obj = StellarObject(peak_points, peak_val)
+            obj.get_background_rect(self.data, 2)
             print(f"object masked with {peak_points}")
-            if 0.95 <= len(peak_points)/obj.bounding_rect.get_area() or len(peak_points)/obj.bounding_rect.get_area() <= 0.3:
+            if 0.95 <= len(peak_points) / obj.bounding_rect.get_area() or len(peak_points) / obj.bounding_rect.get_area() <= 0.3:
                 # print("This object doesn't seem very circular.")
                 # obj.plot_me(self.data, self.mask)
                 # reject = input("Accept: (Y/N):  ") == "N"
@@ -117,7 +124,8 @@ class Image:
             # Subtract 150 to normalise to new coordinate system
             init_x, init_y = centroid[1] - self.boundary, centroid[0] - self.boundary
             cluster_points = []
-            flood_fill(init_x, init_y, self.data[init_x, init_y], self.data, cluster_points, step_size=1, threshold=0.4, always_up=True, gradient_decent=True)
+            flood_fill(init_x, init_y, self.data[init_x, init_y], self.data, cluster_points, step_size=1, threshold=0.4, always_up=True,
+                       gradient_decent=True)
             cluster_points_trp = np.transpose(cluster_points)
             plt.scatter(cluster_points_trp[1], cluster_points_trp[0], s=1, label=f"Cluster")
         plt.show()

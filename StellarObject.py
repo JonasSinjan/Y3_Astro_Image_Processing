@@ -1,23 +1,27 @@
-import matplotlib.pyplot as plt
 import matplotlib.patches as plt_patch
+import matplotlib.pyplot as plt
 import numpy as np
 
 
 class StellarObject:
     class BoundingRect:
         def __init__(self, left, bottom, right, top):
-            self.left = left
-            self.top = top
-            self.right = right
-            self.bottom = bottom
-            self.height = top - bottom
-            self.width = right - left
+            self.left = int(left)
+            self.top = int(top)
+            self.right = int(right)
+            self.bottom = int(bottom)
+            self.height = self.top - self.bottom
+            self.width = self.right - self.left
 
         def get_patch(self, offset_x=0, offset_y=0):
-            return plt_patch.Rectangle((self.left + offset_x, self.bottom + offset_y), self.width, self.height, linewidth=1, edgecolor='r', facecolor="none")
+            return plt_patch.Rectangle((self.left + offset_x, self.bottom + offset_y), self.width, self.height, linewidth=1, edgecolor='r',
+                                       facecolor="none")
 
         def get_origin(self):
             return (self.left + self.right) / 2, (self.top + self.bottom) / 2
+
+        def get_enc_points(self):
+            return [(y, x) for y in range(self.bottom, self.top + 1) for x in range(self.left, self.right + 1)]
 
         @staticmethod
         def scale_rect_origin(obj, sf):
@@ -40,8 +44,7 @@ class StellarObject:
         ax.imshow(data[y - 30:y + 30, x - 30:x + 30] * mask[y - 30:y + 30, x - 30:x + 30], cmap="gray", origin="lower", aspect="equal")
         ax.scatter(np.transpose(self.points)[1] - x + 30, np.transpose(self.points)[0] - y + 30, s=1)
         ax.add_patch(self.bounding_rect.get_patch(-x + 30, -y + 30))
-        bb = self.get_background_rect()
-        ax.add_patch(bb.get_patch(-x + 30, -y + 30))
+        ax.add_patch(self.bg_bound.get_patch(-x + 30, -y + 30))
         plt.show()
 
     def set_bouding_rect(self):
@@ -52,9 +55,19 @@ class StellarObject:
         top = max(y_points) + 1
         self.bounding_rect = self.BoundingRect(left, bottom, right, top)
 
-    def get_background_rect(self, sf=1.5):
-        backgroudn_bounding = self.BoundingRect.scale_rect_origin(self.bounding_rect, sf)
-        return backgroudn_bounding
+    def get_background_rect(self, data, sf=1.5):
+        self.bg_bound = self.BoundingRect.scale_rect_origin(self.bounding_rect, sf)
+        bg_pts = filter(lambda x: x not in self.points, self.bg_bound.get_enc_points())
+        bg_vals = [data[val] for val in bg_pts]
+        self.local_background = np.mean(bg_vals)
+        plt.hist(bg_vals)
+        plt.show()
+
+
+    def set_magnitudes(self, instr_zero_pt):
+        self.relative_magnitude = instr_zero_pt - 2.5 * np.log10(self.peak_val)
+
+
 
     def __str__(self):
         return str(self.points)
