@@ -94,11 +94,11 @@ class Image:
             if len(peak_points) == 0:
                 break
             obj = StellarObject(peak_points, peak_val)
-            obj.get_background_rect(self.data, 2)
+            obj.get_background_rect(self.data, self.known_magnitude, 2)
             print(f"object masked with {peak_points}")
             if 0.95 <= len(peak_points) / obj.bounding_rect.get_area() or len(peak_points) / obj.bounding_rect.get_area() <= 0.3:
                 # print("This object doesn't seem very circular.")
-                # obj.plot_me(self.data, self.mask)
+                obj.plot_me(self.data, self.mask)
                 # reject = input("Accept: (Y/N):  ") == "N"
                 # if reject:
                 #     for point in peak_points:
@@ -224,7 +224,7 @@ class Image:
         fig.colorbar(sky)
         plt.show()
 
-    def mag(self):
+    def mag(self): # for entire dataset
         inst_mag_arr = np.zeros((len(self.data), len(self.data[0])))
         var1, var2 = len(self.data[0]), len(self.data)
         for y in range(var2):
@@ -242,11 +242,12 @@ class Image:
         # 3D plot of data points and counts
 
 
+
 if __name__ == '__main__':
-    # cluster_centroid = [
-    #    (1445, 3193),
-    #    (1446, 316)
-    # ]
+    cluster_centroid = [
+       (1445, 3193),
+       (1446, 316)
+    ]
     bleeding_edge = [
         {'tleft': (1420, 4608),
          'bright': (1450, 3509), 'name': 'Above Cen Star'},
@@ -306,6 +307,12 @@ if __name__ == '__main__':
         img.filter_by_sigma(5)
         list, rejected = img.create_catalogue()
         print(len(list), rejected)
+        mag_arr = [0]*len(list)
+        for count, obj in enumerate(list):
+            mag_arr[count] = obj.mag
+        plt.hist(mag_arr)
+        plt.show()
+
 
 
     sys.setrecursionlimit(10 ** 5)
