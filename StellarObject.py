@@ -34,10 +34,10 @@ class StellarObject:
             right = origin_x + width / 2
             top = origin_y + height / 2
             bot = origin_y - height / 2
-            if right >= data.shape[0]:
-                right = data.shape[0]
-            if top >= data.shape[1]:
-                top = data.shape[1]
+            if right >= data.shape[0]-1:
+                right = data.shape[0]-1
+            if top >= data.shape[1]-1:
+                top = data.shape[1]-1
             if left < 0:
                 left = 0
             if bot < 0:
