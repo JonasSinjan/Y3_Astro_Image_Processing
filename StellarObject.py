@@ -34,10 +34,10 @@ class StellarObject:
             right = origin_x + width / 2
             top = origin_y + height / 2
             bot = origin_y - height / 2
-            if right >= data.shape[1]:
-                right = data.shape[1]
-            if top >= data.shape[0]:
-                top = data.shape[0]
+            if right >= data.shape[1] - 1:
+                right = data.shape[1] - 1
+            if top >= data.shape[0] - 1:
+                top = data.shape[0] - 1
             if left < 0:
                 left = 0
             if bot < 0:
@@ -78,12 +78,11 @@ class StellarObject:
         self.bg_bound = self.BoundingRect.scale_rect_origin(self.bounding_rect, data, sf)
         bg_pts = filter(lambda x: x not in self.points, self.bg_bound.get_enc_points())
         total_count = [data[i] for i in self.bg_bound.get_enc_points()]
-        bg_vals = [data[val] for val in bg_pts if data[val] <= 3500]
+        bg_vals = [data[val] for val in bg_pts]
         self.local_background = np.mean(bg_vals)
         total_background_count = self.local_background * len(
             self.bg_bound.get_enc_points())  # total background counts for all pixels
-        self.source_count = total_count - total_background_count  # counts just from object
-        assert self.source_count >= 0
+        self.source_count = sum(total_count) - total_background_count  # counts just from object
         self.mag = relative_mag - 2.5 * np.log10(self.source_count)
         # plt.hist(bg_vals)
         # plt.show()

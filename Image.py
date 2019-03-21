@@ -94,7 +94,7 @@ class Image:
             if len(peak_points) == 0:
                 break
             obj = StellarObject(peak_points, peak_val)
-            obj.get_background_rect(self.data, self.known_magnitude, 2)
+            obj.get_background_rect(self.data, self.known_magnitude, 3)
             print(f"object masked with {peak_points}")
             if 0.95 <= len(peak_points) / obj.bounding_rect.get_area() or len(peak_points) / obj.bounding_rect.get_area() <= 0.3:
                 # print("This object doesn't seem very circular.")
@@ -309,9 +309,18 @@ if __name__ == '__main__':
         list, rejected = img.create_catalogue()
         print(len(list), rejected)
         mag_arr = [0]*len(list)
+        flux_arr = [0]*len(list)
         for count, obj in enumerate(list):
-            mag_arr[count] = obj.mag
+            mag_arr[count] = obj.mag #max must be larger than min, the negative values breaks plt.hist
+            flux_arr[count] = obj.source_count
+        #plt.figure()
+        #plt.hist(flux_arr)
+        plt.figure()
         plt.hist(mag_arr)
+
+
+
+
         plt.show()
 
 
