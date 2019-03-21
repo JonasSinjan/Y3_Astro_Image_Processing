@@ -9,7 +9,8 @@ from scipy.optimize import curve_fit
 from StellarObject import StellarObject
 
 
-def flood_fill(x, y, val, data, closedset, step_size=1, threshold=0.01, gradient_decent=False, always_up=False, mask=None):
+def flood_fill(x, y, val, data, closedset, step_size=1, threshold=0.01, gradient_decent=False, always_up=False,
+               mask=None):
     if sys.getrecursionlimit() < 1000:
         raise RuntimeError("Insufficient recursion depth to allow the flood fill to commence")
     if x >= data.shape[0] or y >= data.shape[1] or x < 0 or y < 0:
@@ -32,16 +33,20 @@ def flood_fill(x, y, val, data, closedset, step_size=1, threshold=0.01, gradient
         return
     # Have a deep think here about whether this is working correctly.
     if (data[x + step_size, y] - this_pt) / this_pt <= 0.1 or not gradient_decent:
-        flood_fill(int(x + step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent,
+        flood_fill(int(x + step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold,
+                   gradient_decent=gradient_decent,
                    always_up=always_up, mask=mask)
     if (data[x - step_size, y] - this_pt) / this_pt <= 0.1 or not gradient_decent:
-        flood_fill(int(x - step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent,
+        flood_fill(int(x - step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold,
+                   gradient_decent=gradient_decent,
                    always_up=always_up, mask=mask)
     if (data[x, y + step_size] - this_pt) / this_pt <= 0.1 or not gradient_decent:
-        flood_fill(int(x), int(y + step_size), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent,
+        flood_fill(int(x), int(y + step_size), val, data, closedset, step_size=step_size, threshold=threshold,
+                   gradient_decent=gradient_decent,
                    always_up=always_up, mask=mask)
     if (data[x, y - step_size] - this_pt) / this_pt <= 0.1 or not gradient_decent:
-        flood_fill(int(x), int(y - step_size), val, data, closedset, step_size=step_size, threshold=threshold, gradient_decent=gradient_decent,
+        flood_fill(int(x), int(y - step_size), val, data, closedset, step_size=step_size, threshold=threshold,
+                   gradient_decent=gradient_decent,
                    always_up=always_up, mask=mask)
 
 
@@ -80,22 +85,24 @@ class Image:
         self.mask = self.mask[boundary:-boundary, boundary:-boundary]
         self.height, self.width = self.data.shape
 
-    def create_catalogue(self):
+    def create_catalogue(self,filename=None):
         # Find brightness non masked object
         sources = self.data * self.mask
-        list = []
+        catalogue_list = []
         i = 0
         while max(sources.flatten()) > 0:
             sources = self.data * self.mask
             peak_y, peak_x = np.unravel_index(sources.argmax(), sources.shape)
             peak_val = self.data[peak_y, peak_x]
             peak_points = []
-            flood_fill(peak_y, peak_x, peak_val, self.data, peak_points, mask=self.mask, threshold=0.85, gradient_decent=True)
+            flood_fill(peak_y, peak_x, peak_val, self.data, peak_points, mask=self.mask, threshold=0.85,
+                       gradient_decent=True)
             if len(peak_points) == 0:
                 break
             obj = StellarObject(peak_points, peak_val)
             obj.get_background_rect(self.data, self.known_magnitude, 3)
-            if 0.95 <= len(peak_points) / obj.bounding_rect.get_area() or len(peak_points) / obj.bounding_rect.get_area() <= 0.3:
+            if 0.95 <= len(peak_points) / obj.bounding_rect.get_area() or len(
+                    peak_points) / obj.bounding_rect.get_area() <= 0.3:
                 # print("This object doesn't seem very circular.")
                 obj.plot_me(self.data, self.mask)
                 # reject = input("Accept: (Y/N):  ") == "N"
@@ -108,10 +115,15 @@ class Image:
                 i += 1
                 continue
 
-            list.append(obj)
+            catalogue_list.append(obj)
             # add to catalogue
             for point in peak_points:
                 self.mask[point[0], point[1]] = False
+
+        if filename:
+            with open(filename,'w') as catalogue_file:
+                catalogue_file.write(str(catalogue_list))
+
 
         return list, i
 
@@ -123,7 +135,8 @@ class Image:
             # Subtract 150 to normalise to new coordinate system
             init_x, init_y = centroid[1] - self.boundary, centroid[0] - self.boundary
             cluster_points = []
-            flood_fill(init_x, init_y, self.data[init_x, init_y], self.data, cluster_points, step_size=1, threshold=0.4, always_up=True,
+            flood_fill(init_x, init_y, self.data[init_x, init_y], self.data, cluster_points, step_size=1, threshold=0.4,
+                       always_up=True,
                        gradient_decent=True)
             cluster_points_trp = np.transpose(cluster_points)
             plt.scatter(cluster_points_trp[1], cluster_points_trp[0], s=1, label=f"Cluster")
@@ -314,15 +327,17 @@ if __name__ == '__main__':
             flux_arr[count] = obj.source_count
         # plt.figure()
         # plt.hist(flux_arr)
+
         plt.figure()
         plt.hist(mag_arr)
         plt.show()
-        m = np.arange(8,20,0.5)
+        m = np.arange(9, 16, 0.5)
         N = [(len(list(filter(lambda x: x.mag < m_i, catalogue)))) for m_i in m]
-        plt.plot(m,N)
+        plt.plot(m, N)
         plt.show()
-
-
+        plt.figure()
+        plt.plot(m, np.log(N), 'r.', linestyle='--')
+        plt.show()
 
 
     sys.setrecursionlimit(10 ** 5)
