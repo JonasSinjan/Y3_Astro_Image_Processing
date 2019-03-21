@@ -224,7 +224,7 @@ class Image:
         fig.colorbar(sky)
         plt.show()
 
-    def mag(self): # for entire dataset
+    def mag(self):  # for entire dataset
         inst_mag_arr = np.zeros((len(self.data), len(self.data[0])))
         var1, var2 = len(self.data[0]), len(self.data)
         for y in range(var2):
@@ -242,11 +242,10 @@ class Image:
         # 3D plot of data points and counts
 
 
-
 if __name__ == '__main__':
     cluster_centroid = [
-       (1445, 3193),
-       (1446, 316)
+        (1445, 3193),
+        (1446, 316)
     ]
     bleeding_edge = [
         {'tleft': (1420, 4608),
@@ -306,23 +305,19 @@ if __name__ == '__main__':
         # img.histogram(3500, 3350)
         img.filter_by_sigma(5)
         print(img.data.shape[0], img.data.shape[1])
-        list, rejected = img.create_catalogue()
-        print(len(list), rejected)
-        mag_arr = [0]*len(list)
-        flux_arr = [0]*len(list)
-        for count, obj in enumerate(list):
-            mag_arr[count] = obj.mag #max must be larger than min, the negative values breaks plt.hist
+        catalogue, rejected = img.create_catalogue()
+
+        print(len(catalogue), rejected)
+        mag_arr = [0] * len(catalogue)
+        flux_arr = [0] * len(catalogue)
+        for count, obj in enumerate(catalogue):
+            mag_arr[count] = obj.mag  # max must be larger than min, the negative values breaks plt.hist
             flux_arr[count] = obj.source_count
-        #plt.figure()
-        #plt.hist(flux_arr)
+        # plt.figure()
+        # plt.hist(flux_arr)
         plt.figure()
         plt.hist(mag_arr)
-
-
-
-
         plt.show()
-
 
 
     sys.setrecursionlimit(10 ** 5)
