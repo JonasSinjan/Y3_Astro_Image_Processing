@@ -275,7 +275,7 @@ if __name__ == '__main__':
         img.trim(150)
         img.plotarcsinh()
         # img.histogram(3500, 3350)
-        img.filter_by_sigma(2)
+        img.filter_by_sigma(3)
         print(img.data.shape[0], img.data.shape[1])
         catalogue, rejected = img.create_catalogue(filename="survey_2sig.cat", thresh=0.75)
         print(len(catalogue), rejected)
