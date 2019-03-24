@@ -273,13 +273,14 @@ if __name__ == '__main__':
         img = Image("A1_mosaic.fits")
         img.create_mask_map(50000, rect_masks=bleeding_edge)
         img.trim(150)
-        img.plotarcsinh()
+        # img.plotarcsinh()
         # img.histogram(3500, 3350)
-        img.filter_by_sigma(5)
+        sigma = 5
+        thresh_var = 0.7
+        img.filter_by_sigma(sigma)
         # print(img.data.shape[0], img.data.shape[1])
-        catalogue, rejected = img.create_catalogue(filename="survey_5sig_0.85.cat", thresh=0.85)
+        catalogue, rejected = img.create_catalogue(filename=f"survey_{sigma}sig_{thresh_var}.cat", thresh=thresh_var)
         print(len(catalogue), rejected)
-
 
     sys.setrecursionlimit(10 ** 5)
     threading.stack_size(67108864)  # Largest possible stack size of 64MB on Windows
