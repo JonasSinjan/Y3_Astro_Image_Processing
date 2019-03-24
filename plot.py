@@ -1,13 +1,31 @@
 from Image import *
-
-
+import matplotlib.patches as patches
+import ast
 if __name__ == '__main__':
     def main(filename):
         # open csv and turn it into an array called catalogue
         # retrieve magnitudes and turn it into arr/list
+        img = Image("A1_mosaic.fits")
+        img.trim(150)
+        fig,ax = plt.subplots()
+        image_map = ax.imshow(img.data * img.mask,origin="lower",aspect="equal")
 
         df = pd.read_csv(filename)
         mag = df["Relative Magnitude"]
+
+        star_points = df["Points"]
+        bound_rects = []
+
+        for star in star_points:
+            star = np.array(ast.literal_eval(star))
+            y_points, x_points = np.transpose(star)
+            left = min(x_points) - 1
+            bottom = min(y_points) - 1
+            right = max(x_points) + 1
+            top = max(y_points) + 1
+            ax.add_patch(patches.Rectangle((left,bottom),right-left,top-bottom))
+        fig.colorbar(image_map)
+        plt.show()
 
         m = np.arange(9, 16, 0.5)
         N = [(len(list(filter(lambda x: x < m_i, mag)))) for m_i in m]
