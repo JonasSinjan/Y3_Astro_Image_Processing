@@ -8,14 +8,13 @@ if __name__ == '__main__':
         # retrieve magnitudes and turn it into arr/list
         img = Image("A1_mosaic.fits")
         img.trim(150)
-        fig, ax = plt.subplots(figsize=(6, 11), dpi=200)
+        fig, ax = plt.subplots(figsize=(6, 11), dpi=800)
         image_map = ax.imshow(img.data * img.mask, origin="lower", aspect="equal")
 
         df = pd.read_csv(filename)
         mag = df["Relative Magnitude"]
 
         star_points = df["Points"]
-        bound_rects = []
 
         for star in star_points:
             star = np.array(ast.literal_eval(star))
@@ -26,10 +25,10 @@ if __name__ == '__main__':
             top = max(y_points) + 1
             ax.add_patch(patches.Rectangle((left, bottom), right - left, top - bottom,linewidth=1, edgecolor='r',
                                        facecolor="none"))
-        ax.set_xlabel("x")
-        ax.set_ylabel("y")
+        ax.set_xlabel("X")
+        ax.set_ylabel("Y")
 
-        fig.colorbar(image_map)
+        # fig.colorbar(image_map)
         plt.show()
 
         m = np.arange(9, 16, 0.5)

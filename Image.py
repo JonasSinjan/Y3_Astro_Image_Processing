@@ -240,7 +240,7 @@ class Image:
         sky = ax.imshow(np.arcsinh(self.data * self.mask), origin="lower", cmap="gray", aspect="equal")
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
-        fig.colorbar(sky)
+        #fig.colorbar(sky)
         plt.show()
 
     def mag(self):  # for entire dataset
@@ -273,7 +273,7 @@ if __name__ == '__main__':
         img = Image("A1_mosaic.fits")
         img.create_mask_map(50000, rect_masks=bleeding_edge)
         img.trim(150)
-        # img.plotarcsinh()
+        img.plotarcsinh()
         # img.histogram(3500, 3350)
         img.filter_by_sigma(5)
         # print(img.data.shape[0], img.data.shape[1])
