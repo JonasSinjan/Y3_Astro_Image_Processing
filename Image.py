@@ -67,10 +67,9 @@ class Image:
 
     def read_from_csv(self, filename, process_each):
         obj_data = pd.read_csv(filename)
-
         for obj in obj_data:
             obj = StellarObject(obj["Points"], obj["Peak Value"])  # Or something like this
-            process_each(obj)
+            process_each(self, obj)
 
     def create_mask_map(self, cut_off, rect_masks=None, cluster_centroids=None):
         self.mask = (self.data <= cut_off)  # Automatically create mask map based off cut off
@@ -275,7 +274,7 @@ if __name__ == '__main__':
         img.create_mask_map(50000, rect_masks=bleeding_edge)
         img.trim(150)
         img.plotarcsinh()
-        #img.histogram(3500, 3350)
+        # img.histogram(3500, 3350)
         img.filter_by_sigma(2)
         print(img.data.shape[0], img.data.shape[1])
         catalogue, rejected = img.create_catalogue(filename="survey_2sig.cat", thresh=0.75)
