@@ -124,9 +124,7 @@ class Image:
                 self.mask[point[0], point[1]] = False
 
         if filename:
-            export_df = pd.DataFrame([], columns=["Points", "Peak Val", "Source Count", "Local Background", "Relative Magnitude"])
-            for item in catalogue_list:
-                export_df.append(item.data,ignore_index=True)
+            export_df = pd.DataFrame([item.data_tuple for item in catalogue_list], columns=["Points", "Peak Val", "Source Count", "Local Background", "Relative Magnitude"])
             export_df.to_csv(filename, index=False)
         return catalogue_list, i
 
