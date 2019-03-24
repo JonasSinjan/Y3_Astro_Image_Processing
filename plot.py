@@ -1,13 +1,13 @@
 from Image import *
 
 
-if __name__ == 'main':
+if __name__ == '__main__':
     def main(filename):
         # open csv and turn it into an array called catalogue
         # retrieve magnitudes and turn it into arr/list
 
-        df = pd.read_csv(filename, header=None)
-        mag = df.iloc[:, [4]]
+        df = pd.read_csv(filename)
+        mag = df["Relative Magnitude"]
 
         m = np.arange(9, 16, 0.5)
         N = [(len(list(filter(lambda x: x < m_i, mag)))) for m_i in m]
@@ -25,5 +25,5 @@ if __name__ == 'main':
 
     sys.setrecursionlimit(10 ** 5)
     threading.stack_size(67108864)  # Largest possible stack size of 64MB on Windows
-    main_thread = threading.Thread(target=main, args=('survey_sig3.cat',))
+    main_thread = threading.Thread(target=main, args=('survey_5sig.cat',))
     main_thread.start()
