@@ -10,7 +10,7 @@ bleeding_edge = [
     {'tleft': (1288, 164),
      'bright': (1521, 124), 'name': 'Xmas 3'},
     {'tleft': (1021, 359),
-     'bright': (1702, 316), 'name': 'Xmas 4'},
+     'bright': (1702, 305), 'name': 'Xmas 4'},
     {'tleft': (1634, 61),
      'bright': (1717, 2), 'name': 'Xmas 5'},
     {'tleft': (1100, 442),
