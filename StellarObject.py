@@ -90,3 +90,7 @@ class StellarObject:
     @property
     def data(self):
         return {"Points": self.points, "Peak Val": self.peak_val, "Source Count": self.source_count, "Local Background": self.local_background, "Relative Magnitude": self.mag}
+
+    @property
+    def data_tuple(self):
+        return (self.points, self.peak_val, self.source_count, self.local_background, self.mag)
