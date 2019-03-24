@@ -65,6 +65,13 @@ class Image:
         self.background = 3419.24
         self.background_sigma = 11.6449
 
+    def read_from_csv(self, filename, process_each):
+        obj_data = pd.read_csv(filename)
+
+        for obj in obj_data:
+            obj = StellarObject(obj["Points"], obj["Peak Value"])  # Or something like this
+            process_each(obj)
+
     def create_mask_map(self, cut_off, rect_masks=None, cluster_centroids=None):
         self.mask = (self.data <= cut_off)  # Automatically create mask map based off cut off
         if rect_masks:
