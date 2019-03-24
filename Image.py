@@ -106,7 +106,7 @@ class Image:
             if 0.95 <= len(peak_points) / obj.bounding_rect.get_area() or len(
                     peak_points) / obj.bounding_rect.get_area() <= 0.3:
                 # print("This object doesn't seem very circular.")
-                obj.plot_me(self.data, self.mask)
+                # obj.plot_me(self.data, self.mask)
                 # reject = input("Accept: (Y/N):  ") == "N"
                 # if reject:
                 #     for point in peak_points:
@@ -258,10 +258,7 @@ class Image:
 
 
 if __name__ == '__main__':
-    # cluster_centroid = [
-    #     (1445, 3193),
-    #     (1446, 316)
-    # ]
+
 
     def main():
         # Run all executable code here to ensure that
@@ -270,34 +267,11 @@ if __name__ == '__main__':
         img.create_mask_map(50000, rect_masks=bleeding_edge)
         img.trim(150)
         img.plotarcsinh()
-        # img.histogram(3500, 3350)
-        img.filter_by_sigma(3)
+        img.histogram(3500, 3350)
+        img.filter_by_sigma(5)
         print(img.data.shape[0], img.data.shape[1])
-        catalogue, rejected = img.create_catalogue(filename="survey_3sig.cat")
-
+        catalogue, rejected = img.create_catalogue(filename="survey_5sig.cat")
         print(len(catalogue), rejected)
-        mag_arr = [0] * len(catalogue)
-        flux_arr = [0] * len(catalogue)
-        for count, obj in enumerate(catalogue):
-            mag_arr[count] = obj.mag  # max must be larger than min, the negative values breaks plt.hist
-            flux_arr[count] = obj.source_count
-
-        plt.figure()
-        plt.hist(mag_arr)
-        plt.show()
-
-        m = np.arange(9, 16, 0.5)
-        N = [(len(list(filter(lambda x: x.mag < m_i, catalogue)))) for m_i in m]
-        plt.plot(m, N)
-        plt.show()
-
-        plt.figure()
-        slope, intercept, rvalue, pvalue, stderr = linregress(m, np.log10(N))
-        fit_str = f"Linear Regression Fit\nSlope:{round(slope, 3)}±{round(stderr, 3)}\nR^2:{round(rvalue ** 2, 3)}"
-        plt.plot(m, [i * slope + intercept for i in m], 'b-', label=fit_str)
-        plt.plot(m, np.log10(N), 'r.', linestyle='--', label='Raw Data')
-        plt.legend()
-        plt.show()
 
 
     sys.setrecursionlimit(10 ** 5)
