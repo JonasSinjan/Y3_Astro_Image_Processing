@@ -126,7 +126,7 @@ class Image:
         if filename:
             export_df = pd.DataFrame([], columns=["Points", "Peak Val", "Source Count", "Local Background", "Relative Magnitude"])
             for item in catalogue_list:
-                export_df.append(item.data)
+                export_df.append(item.data,ignore_index=True)
             export_df.to_csv(filename, index=False)
         return catalogue_list, i
 
@@ -273,7 +273,7 @@ if __name__ == '__main__':
         # img.histogram(3500, 3350)
         img.filter_by_sigma(3)
         print(img.data.shape[0], img.data.shape[1])
-        catalogue, rejected = img.create_catalogue(filename="survey_3sig.cat")
+        catalogue, rejected = img.create_catalogue(filename="survey_3sig.csv")
 
         print(len(catalogue), rejected)
         mag_arr = [0] * len(catalogue)
