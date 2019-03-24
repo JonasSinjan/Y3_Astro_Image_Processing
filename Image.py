@@ -62,8 +62,8 @@ class Image:
             self.mask = np.ones(self.data.shape, dtype=bool)
             self.height, self.width = self.data.shape
         self.boundary = 0
-        self.background = 3419.24
-        self.background_sigma = 11.6449
+        self.background = 3419.2410255274162
+        self.background_sigma = 11.644900703576862
 
     def read_from_csv(self, filename, process_each):
         obj_data = pd.read_csv(filename)
@@ -93,7 +93,7 @@ class Image:
         self.mask = self.mask[boundary:-boundary, boundary:-boundary]
         self.height, self.width = self.data.shape
 
-    def create_catalogue(self, filename=None):
+    def create_catalogue(self, filename=None, thresh=0.8):
         # Find brightness non masked object
         sources = self.data * self.mask
         catalogue_list = []
@@ -104,7 +104,7 @@ class Image:
             peak_y, peak_x = np.unravel_index(sources.argmax(), sources.shape)
             peak_val = self.data[peak_y, peak_x]
             peak_points = []
-            flood_fill(peak_y, peak_x, peak_val, self.data, peak_points, mask=self.mask, threshold=0.85,
+            flood_fill(peak_y, peak_x, peak_val, self.data, peak_points, mask=self.mask, threshold=thresh,
                        gradient_decent=True)
             if len(peak_points) == 0:
                 break
@@ -186,7 +186,7 @@ class Image:
 
         plt.xlabel('Pixel Value')
         plt.ylabel('Relative Frequency Offset From Gaussian')
-        plt.title('Residual Nature - Highlights Local Background Regions')
+        plt.title('Histogram of Background Points')
         plt.legend()
 
         plt.show()
@@ -275,10 +275,10 @@ if __name__ == '__main__':
         img.create_mask_map(50000, rect_masks=bleeding_edge)
         img.trim(150)
         img.plotarcsinh()
-        img.histogram(3500, 3350)
-        img.filter_by_sigma(5)
+        #img.histogram(3500, 3350)
+        img.filter_by_sigma(2)
         print(img.data.shape[0], img.data.shape[1])
-        catalogue, rejected = img.create_catalogue(filename="survey_5sig.cat")
+        catalogue, rejected = img.create_catalogue(filename="survey_2sig.cat", thresh=0.75)
         print(len(catalogue), rejected)
 
 
