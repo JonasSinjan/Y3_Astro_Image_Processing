@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from astropy.io import fits
 from scipy.optimize import curve_fit
-
+from manual_mask import bleeding_edge
 from StellarObject import StellarObject
 
 
@@ -85,10 +85,11 @@ class Image:
         self.mask = self.mask[boundary:-boundary, boundary:-boundary]
         self.height, self.width = self.data.shape
 
-    def create_catalogue(self,filename=None):
+    def create_catalogue(self, filename=None):
         # Find brightness non masked object
         sources = self.data * self.mask
         catalogue_list = []
+        mag_list = []
         i = 0
         while max(sources.flatten()) > 0:
             sources = self.data * self.mask
@@ -116,14 +117,14 @@ class Image:
                 continue
 
             catalogue_list.append(obj)
+            mag_list.append(obj.mag)
             # add to catalogue
             for point in peak_points:
                 self.mask[point[0], point[1]] = False
 
         if filename:
             with open(filename, 'w') as catalogue_file:
-                catalogue_file.write(str(catalogue_list))
-
+                catalogue_file.write(str(mag_list))
 
         return catalogue_list, i
 
@@ -255,57 +256,10 @@ class Image:
 
 
 if __name__ == '__main__':
-    cluster_centroid = [
-        (1445, 3193),
-        (1446, 316)
-    ]
-    bleeding_edge = [
-        {'tleft': (1420, 4608),
-         'bright': (1450, 3509), 'name': 'Above Cen Star'},
-        {'tleft': (1415, 2967),
-         'bright': (1455, 0), 'name': 'Below Cen Star'},
-        {'tleft': (1026, 370),
-         'bright': (1703, 315), 'name': 'Xmas 1'},
-        {'tleft': (1394, 279),
-         'bright': (1475, 217), 'name': 'Xmas 2'},
-        {'tleft': (1288, 164),
-         'bright': (1521, 124), 'name': 'Xmas 3'},
-        {'tleft': (1021, 359),
-         'bright': (1702, 316), 'name': 'Xmas 4'},
-        {'tleft': (1634, 61),
-         'bright': (1717, 2), 'name': 'Xmas 5'},
-        {'tleft': (1100, 442),
-         'bright': (1642, 424), 'name': 'Xmas 6'},
-        {'tleft': (1402, 469),
-         'bright': (1482, 442), 'name': 'Xmas 7'},
-        {'tleft': (1200, 3446),
-         'bright': (1659, 2967), 'name': 'Central Star'},
-        {'tleft': (725, 3426),
-         'bright': (818, 3209), 'name': 'Other Star 1'},
-        {'tleft': (865, 2358),
-         'bright': (946, 2223), 'name': 'Other Star 2'},
-        {'tleft': (935, 2837),
-         'bright': (996, 2708), 'name': 'Other Star 3'},
-        {'tleft': (19, 710),
-         'bright': (112, 610), 'name': 'Other Star 4'},
-        {'tleft': (2106, 3800),
-         'bright': (2160, 3714), 'name': 'Other Star 5'},
-        {'tleft': (1393, 3010),
-         'bright': (1438, 2957), 'name': 'Central Star Bot miss'},
-        {'tleft': (1410, 3530),
-         'bright': (1460, 3438), 'name': 'Central Star Top miss'},
-        {'tleft': (1430, 3019),
-         'bright': (1444, 2920), 'name': 'Central Star Bot miss 2'},
-        {'tleft': (1384, 1807),
-         'bright': (1450, 1753), 'name': 'Other Star 6'},
-        {'tleft': (2062, 1450),
-         'bright': (2115, 1379), 'name': 'Other Star 7'},
-        {'tleft': (2178, 3331),
-         'bright': (2302, 3233), 'name': 'Other Star 8'},
-        {'tleft': (2106, 2333),
-         'bright': (2160, 2279), 'name': 'Other Star 9'},
-    ]
-
+    # cluster_centroid = [
+    #     (1445, 3193),
+    #     (1446, 316)
+    # ]
 
     def main():
         # Run all executable code here to ensure that
@@ -315,9 +269,9 @@ if __name__ == '__main__':
         img.trim(150)
         img.plotarcsinh()
         # img.histogram(3500, 3350)
-        img.filter_by_sigma(5)
+        img.filter_by_sigma(3)
         print(img.data.shape[0], img.data.shape[1])
-        catalogue, rejected = img.create_catalogue(filename="survey.cat")
+        catalogue, rejected = img.create_catalogue(filename="survey_3sig.cat")
 
         print(len(catalogue), rejected)
         mag_arr = [0] * len(catalogue)
@@ -325,8 +279,6 @@ if __name__ == '__main__':
         for count, obj in enumerate(catalogue):
             mag_arr[count] = obj.mag  # max must be larger than min, the negative values breaks plt.hist
             flux_arr[count] = obj.source_count
-        # plt.figure()
-        # plt.hist(flux_arr)
 
         plt.figure()
         plt.hist(mag_arr)
@@ -338,7 +290,7 @@ if __name__ == '__main__':
         plt.show()
 
         plt.figure()
-        slope, intercept, rvalue, pvalue, stderr = linregress(m, np.log(N))
+        slope, intercept, rvalue, pvalue, stderr = linregress(m, np.log10(N))
         fit_str = f"Linear Regression Fit\nSlope:{round(slope, 3)}±{round(stderr,3)}\nR^2:{round(rvalue ** 2, 3)}"
         plt.plot(m, [i*slope+intercept for i in m], 'b-', label=fit_str)
         plt.plot(m, np.log10(N), 'r.', linestyle='--', label='Raw Data')
