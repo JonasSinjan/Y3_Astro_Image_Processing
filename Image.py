@@ -126,7 +126,7 @@ class Image:
         if filename:
             export_df = pd.DataFrame([], columns=["Points", "Peak Val", "Source Count", "Local Background", "Relative Magnitude"])
             for item in catalogue_list:
-                export_df.append(item.data)
+                export_df.append(item.data,ignore_index=True)
             export_df.to_csv(filename, index=False)
         return catalogue_list, i
 
@@ -258,7 +258,10 @@ class Image:
 
 
 if __name__ == '__main__':
-
+    # cluster_centroid = [
+    #     (1445, 3193),
+    #     (1446, 316)
+    # ]
 
     def main():
         # Run all executable code here to ensure that
