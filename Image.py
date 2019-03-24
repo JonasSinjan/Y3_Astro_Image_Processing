@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from astropy.io import fits
 from scipy.optimize import curve_fit
+import pandas as pd
 from manual_mask import bleeding_edge
 from StellarObject import StellarObject
 
@@ -123,9 +124,10 @@ class Image:
                 self.mask[point[0], point[1]] = False
 
         if filename:
-            with open(filename, 'w') as catalogue_file:
-                catalogue_file.write(str(mag_list))
-
+            export_df = pd.DataFrame([], columns=["Points", "Peak Val", "Source Count", "Local Background", "Relative Magnitude"])
+            for item in catalogue_list:
+                export_df.append(item.data)
+            export_df.to_csv(filename, index=False)
         return catalogue_list, i
 
     def cluster(self, fill_points):
@@ -291,8 +293,8 @@ if __name__ == '__main__':
 
         plt.figure()
         slope, intercept, rvalue, pvalue, stderr = linregress(m, np.log10(N))
-        fit_str = f"Linear Regression Fit\nSlope:{round(slope, 3)}±{round(stderr,3)}\nR^2:{round(rvalue ** 2, 3)}"
-        plt.plot(m, [i*slope+intercept for i in m], 'b-', label=fit_str)
+        fit_str = f"Linear Regression Fit\nSlope:{round(slope, 3)}±{round(stderr, 3)}\nR^2:{round(rvalue ** 2, 3)}"
+        plt.plot(m, [i * slope + intercept for i in m], 'b-', label=fit_str)
         plt.plot(m, np.log10(N), 'r.', linestyle='--', label='Raw Data')
         plt.legend()
         plt.show()

@@ -87,7 +87,6 @@ class StellarObject:
         # plt.hist(bg_vals)
         # plt.show()
 
-
-
-    def __str__(self):
-        return str(self.points)
+    @property
+    def data(self):
+        return {"Points": self.points, "Peak Val": self.peak_val, "Source Count": self.source_count, "Local Background": self.local_background, "Relative Magnitude": self.mag}
