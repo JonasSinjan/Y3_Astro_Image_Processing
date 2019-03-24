@@ -1,14 +1,15 @@
 from Image import *
 import matplotlib.patches as patches
 import ast
+
 if __name__ == '__main__':
     def main(filename):
         # open csv and turn it into an array called catalogue
         # retrieve magnitudes and turn it into arr/list
         img = Image("A1_mosaic.fits")
         img.trim(150)
-        fig,ax = plt.subplots()
-        image_map = ax.imshow(img.data * img.mask,origin="lower",aspect="equal")
+        fig, ax = plt.subplots(figsize=(6, 11), dpi=200)
+        image_map = ax.imshow(img.data * img.mask, origin="lower", aspect="equal")
 
         df = pd.read_csv(filename)
         mag = df["Relative Magnitude"]
@@ -23,7 +24,11 @@ if __name__ == '__main__':
             bottom = min(y_points) - 1
             right = max(x_points) + 1
             top = max(y_points) + 1
-            ax.add_patch(patches.Rectangle((left,bottom),right-left,top-bottom))
+            ax.add_patch(patches.Rectangle((left, bottom), right - left, top - bottom,linewidth=1, edgecolor='r',
+                                       facecolor="none"))
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+
         fig.colorbar(image_map)
         plt.show()
 
@@ -43,5 +48,5 @@ if __name__ == '__main__':
 
     sys.setrecursionlimit(10 ** 5)
     threading.stack_size(67108864)  # Largest possible stack size of 64MB on Windows
-    main_thread = threading.Thread(target=main, args=('survey_5sig.cat',))
+    main_thread = threading.Thread(target=main, args=('survey_5sig_0.85.cat',))
     main_thread.start()

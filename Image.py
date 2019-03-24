@@ -275,9 +275,9 @@ if __name__ == '__main__':
         img.trim(150)
         # img.plotarcsinh()
         # img.histogram(3500, 3350)
-        img.filter_by_sigma(3)
+        img.filter_by_sigma(5)
         # print(img.data.shape[0], img.data.shape[1])
-        catalogue, rejected = img.create_catalogue(filename="survey_3sig_0.65.cat", thresh=0.65)
+        catalogue, rejected = img.create_catalogue(filename="survey_5sig_0.85.cat", thresh=0.85)
         print(len(catalogue), rejected)
 
 
