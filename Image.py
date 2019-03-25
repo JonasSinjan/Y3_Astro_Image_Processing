@@ -276,7 +276,7 @@ if __name__ == '__main__':
         # img.plotarcsinh()
         # img.histogram(3500, 3350)
         sigma = 2.5
-        thresh_var = 0.7
+        thresh_var = 0.8
         img.filter_by_sigma(sigma)
         # print(img.data.shape[0], img.data.shape[1])
         catalogue, rejected = img.create_catalogue(filename=f"survey_{sigma}sig_{thresh_var}.cat", thresh=thresh_var)
