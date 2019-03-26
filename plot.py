@@ -9,7 +9,7 @@ if __name__ == '__main__':
         img = Image("A1_mosaic.fits")
         img.trim(150)
         fig, ax = plt.subplots(figsize=(6, 11), dpi=800)
-        image_map = ax.imshow(img.data * img.mask, origin="lower", aspect="equal")
+        image_map = ax.imshow(np.arcsinh(img.data*img.mask), origin="lower", cmap="gray", aspect="equal")
 
         df = pd.read_csv(filename)
         mag = df["Relative Magnitude"]
@@ -22,9 +22,12 @@ if __name__ == '__main__':
 
         df_list = [df, df2, df3, df4]
         color_list = ['r', 'b', 'y', 'g']
+        sig_list = [2.5, 3, 4, 5]
         for count, df in enumerate(df_list):
             star_points = df["Points"]
             color = color_list[count]
+            sig = sig_list[count]
+            ax.plot(1250, 3050, color=color, label=f'{sig}')
             for star in star_points:
                 star = np.array(ast.literal_eval(star))
                 y_points, x_points = np.transpose(star)
@@ -36,9 +39,13 @@ if __name__ == '__main__':
                                                facecolor="none"))
         ax.set_xlabel("X")
         ax.set_ylabel("Y")
+        ax.set_xlim(1500, 1700)
+        ax.set_ylim(2800, 3300)
+        plt.legend()
+        #fig.colorbar(image_map)
         plt.show()
 
-        # fig.colorbar(image_map)
+        #
         # plt.show()
 
         # need to be wary of this range - could change for different sigma
@@ -51,22 +58,22 @@ if __name__ == '__main__':
         # plt.plot(m, N3)
         # plt.plot(m, N4)
         # plt.show()
-        mag_list = [mag, mag2, mag3, mag4]
-        file_list = [filename, filename2, filename3, filename4]
-        m = np.arange(10, 16.5, 0.5)
-
-        for count, mag in enumerate(mag_list):
-            plt.figure()
-            N = [(len(list(filter(lambda x: x < m_i, mag)))) for m_i in m]
-            slope, intercept, rvalue, pvalue, stderr = linregress(m, np.log10(N))
-            fit_str = f"Linear Regression Fit\nSlope:{round(slope, 3)}±{round(stderr, 3)}\nR^2:{round(rvalue ** 2, 3)}"
-            plt.plot(m, [i * slope + intercept for i in m], 'b-', label=fit_str)
-            filename = file_list[count]
-            plt.plot(m, np.log10(N), 'r.', linestyle='--', label=f'{filename}')
-            plt.xlabel('m')
-            plt.ylabel('Log10(N)')
-            plt.legend()
-        plt.show()
+        # mag_list = [mag, mag2, mag3, mag4]
+        # file_list = [filename, filename2, filename3, filename4]
+        # m = np.arange(10, 16.5, 0.5)
+        #
+        # for count, mag in enumerate(mag_list):
+        #     plt.figure()
+        #     N = [(len(list(filter(lambda x: x < m_i, mag)))) for m_i in m]
+        #     slope, intercept, rvalue, pvalue, stderr = linregress(m, np.log10(N))
+        #     fit_str = f"Linear Regression Fit\nSlope:{round(slope, 3)}±{round(stderr, 3)}\nR^2:{round(rvalue ** 2, 3)}"
+        #     plt.plot(m, [i * slope + intercept for i in m], 'b-', label=fit_str)
+        #     filename = file_list[count]
+        #     plt.plot(m, np.log10(N), 'r.', linestyle='--', label=f'{filename}')
+        #     plt.xlabel('m')
+        #     plt.ylabel('Log10(N)')
+        #     plt.legend()
+        # plt.show()
 
 
     sys.setrecursionlimit(10 ** 5)

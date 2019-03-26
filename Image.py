@@ -4,6 +4,7 @@ from scipy.stats import linregress
 import matplotlib.pyplot as plt
 import numpy as np
 from astropy.io import fits
+import matplotlib.patches as patches
 from scipy.optimize import curve_fit
 import pandas as pd
 from manual_mask import bleeding_edge
@@ -237,9 +238,15 @@ class Image:
 
     def plotarcsinh(self):
         fig, ax = plt.subplots(figsize=(6, 11), dpi=200)
-        sky = ax.imshow(np.arcsinh(self.data * self.mask), origin="lower", cmap="gray", aspect="equal")
+        sky = ax.imshow(np.arcsinh(self.data*self.mask), origin="lower", cmap="gray", aspect="equal")
+        #ax.add_patch(patches.Rectangle((1200-150, 2967-150), 1659 - 1200, 3446 - 2967, linewidth=1, edgecolor='r',
+         #                              facecolor="none"))
+        # {'tleft': (1200, 3446),
+        #  'bright': (1659, 2967), 'name': 'Central Star'}
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
+        #ax.set_xlim(900,1600)
+        #ax.set_ylim(2600,3500)
         #fig.colorbar(sky)
         plt.show()
 
@@ -273,14 +280,14 @@ if __name__ == '__main__':
         img = Image("A1_mosaic.fits")
         img.create_mask_map(50000, rect_masks=bleeding_edge)
         img.trim(150)
-        # img.plotarcsinh()
+        img.plotarcsinh()
         # img.histogram(3500, 3350)
         sigma = 2.5
         thresh_var = 0.7
-        img.filter_by_sigma(sigma)
+        #img.filter_by_sigma(sigma)
         # print(img.data.shape[0], img.data.shape[1])
-        catalogue, rejected = img.create_catalogue(filename=f"survey_{sigma}sig_{thresh_var}.cat", thresh=thresh_var)
-        print(len(catalogue), rejected)
+        #atalogue, rejected = img.create_catalogue(filename=f"survey_{sigma}sig_{thresh_var}.cat", thresh=thresh_var)
+        #print(len(catalogue), rejected)
 
     sys.setrecursionlimit(10 ** 5)
     threading.stack_size(67108864)  # Largest possible stack size of 64MB on Windows
