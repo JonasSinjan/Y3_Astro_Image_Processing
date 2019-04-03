@@ -64,6 +64,8 @@ class StellarObject:
         ax.scatter(np.transpose(self.points)[1] - x + 30, np.transpose(self.points)[0] - y + 30, s=1)
         ax.add_patch(self.bounding_rect.get_patch(-x + 30, -y + 30))
         ax.add_patch(self.bg_bound.get_patch(-x + 30, -y + 30))
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
         plt.show()
 
     def set_bouding_rect(self):

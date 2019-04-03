@@ -110,19 +110,6 @@ class Image:
             if len(peak_points) == 0:
                 break
             obj = StellarObject(peak_points, peak_val)
-            if 0.95 <= len(peak_points) / obj.bounding_rect.get_area() or len(
-                    peak_points) / obj.bounding_rect.get_area() <= 0.3:
-                # print("This object doesn't seem very circular.")
-                # obj.plot_me(self.data, self.mask)
-                # reject = input("Accept: (Y/N):  ") == "N"
-                # if reject:
-                #     for point in peak_points:
-                #         self.mask[point[0], point[1]] = False
-                #     continue
-                for point in peak_points:
-                    self.mask[point[0], point[1]] = False
-                i += 1
-                continue
 
             catalogue_list.append(obj)
 
@@ -130,8 +117,24 @@ class Image:
             for point in peak_points:
                 self.mask[point[0], point[1]] = False
 
+        # print("This object doesn't seem very circular.")
+        # obj.plot_me(self.data, self.mask)
+        # reject = input("Accept: (Y/N):  ") == "N"
+        # if reject:
+        #     for point in peak_points:
+        #         self.mask[point[0], point[1]] = False
+        #     continue
+
         for obj in catalogue_list:
             obj.get_background_rect(self.data, self.mask, self.known_magnitude, 3)
+            if 0.95 <= len(self.points) / obj.bounding_rect.get_area() or len(
+                    self.points) / obj.bounding_rect.get_area() <= 0.3:
+                catalogue_list.remove(obj)
+                for point in self.points:
+                    self.mask[point[0], point[1]] = False
+                i += 1
+                continue
+            obj.plot_me(self.data, self.mask)
             mag_list.append(obj.mag)
 
         if filename:
@@ -290,7 +293,7 @@ if __name__ == '__main__':
         thresh_var = 0.85
         img.filter_by_sigma(sigma)
         # print(img.data.shape[0], img.data.shape[1])
-        catalogue, rejected = img.create_catalogue(filename=f"survey_{sigma}sig_{thresh_var}.cat", thresh=thresh_var)
+        catalogue, rejected = img.create_catalogue(filename=f"survey_{sigma}sig_{thresh_var}_new.cat", thresh=thresh_var)
         print(len(catalogue), rejected)
 
     sys.setrecursionlimit(10 ** 5)
