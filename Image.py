@@ -127,10 +127,10 @@ class Image:
 
         for obj in catalogue_list:
             obj.get_background_rect(self.data, self.mask, self.known_magnitude, 3)
-            if 0.95 <= len(self.points) / obj.bounding_rect.get_area() or len(
-                    self.points) / obj.bounding_rect.get_area() <= 0.3:
+            if 0.95 <= len(obj.points) / obj.bounding_rect.get_area() or len(
+                    obj.points) / obj.bounding_rect.get_area() <= 0.3:
                 catalogue_list.remove(obj)
-                for point in self.points:
+                for point in obj.points:
                     self.mask[point[0], point[1]] = False
                 i += 1
                 continue
