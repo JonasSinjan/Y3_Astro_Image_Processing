@@ -149,7 +149,8 @@ class Image:
         plt.show()
 
     def histogram(self, max, min):
-        n, bins, patches = plt.hist([x for x in self.data.flatten() if min < x < max], bins=max - min - 2)
+        plt.figure()
+        n, bins, patches = plt.hist([x for x in self.data.flatten() if min < x < max], bins=max - min - 2, label='Histogram', log=False, edgecolor='black', linewidth=0.5)
 
         # fit guassian to find mean
         def gaus(x, a, x0, sigma):
@@ -162,8 +163,8 @@ class Image:
 
         # initial guesses
         mean = 3420
-        sigma = 50
-        a = 2 * 10 ** 6
+        sigma = 10
+        a = 3 * 10 ** 6
 
         x = midpoints
         y = n
@@ -176,15 +177,19 @@ class Image:
         print(f"The amplitude is {popt[0]}, The mean is {popt[1]}, sigma = {popt[2]}")
         print(f"The error from sigma is estimated at: {popt[2] / np.sqrt(len(self.data))}")
 
-        plt.plot(x, gaus(x, *popt), 'ro:', label='Gaussian Fit')
-        plt.figure(1)
-        # plt.plot(x, (y - gaus(x, *popt)) / y, label='Signal')
-        # plt.xlim(3390, 3440)
+        plt.plot(x, gaus(x, *popt), 'r.', linestyle='--', markersize='9', label='Gaussian Fit')
+        plt.ylabel('Number of Pixels')
+        plt.xlabel('Pixel Value')
+        plt.legend()
+        #plt.title('Histogram of Background Points')
+        plt.figure()
+        plt.plot(x, (y - gaus(x, *popt)) / y, 'r.', linestyle='--', label='Signal')
+        plt.xlim(min, max)
         # plt.ylim(-0.1, 0.2)
-
+        #plt.ticklabel_format(axis='y', style='sci', scilimits=(4, 7))
+        #plt.rcParams['axes.formatter.limits'] = [4, 7]
         plt.xlabel('Pixel Value')
         plt.ylabel('Relative Frequency Offset From Gaussian')
-        plt.title('Histogram of Background Points')
         plt.legend()
 
         plt.show()
@@ -279,13 +284,13 @@ if __name__ == '__main__':
         img.create_mask_map(50000, rect_masks=bleeding_edge)
         img.trim(150)
         img.plotarcsinh()
-        # img.histogram(3500, 3350)
-        sigma = 5
-        thresh_var = 0.85
-        img.filter_by_sigma(sigma)
+        img.histogram(3470, 3360)
+        #sigma = 5
+        #thresh_var = 0.85
+        #img.filter_by_sigma(sigma)
         # print(img.data.shape[0], img.data.shape[1])
-        catalogue, rejected = img.create_catalogue(filename=f"survey_{sigma}sig_{thresh_var}_new.cat", thresh=thresh_var)
-        print(len(catalogue), rejected)
+        #catalogue, rejected = img.create_catalogue(filename=f"survey_{sigma}sig_{thresh_var}_new.cat", thresh=thresh_var)
+        #print(len(catalogue), rejected)
 
     sys.setrecursionlimit(10 ** 5)
     threading.stack_size(67108864)  # Largest possible stack size of 64MB on Windows
