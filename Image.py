@@ -113,7 +113,7 @@ class Image:
             if 0.95 <= len(peak_points) / obj.bounding_rect.get_area() or len(
                     peak_points) / obj.bounding_rect.get_area() <= 0.3:
                 # print("This object doesn't seem very circular.")
-                #
+                # obj.plot_me(self.data, self.mask)
                 # reject = input("Accept: (Y/N):  ") == "N"
                 # if reject:
                 #     for point in peak_points:
