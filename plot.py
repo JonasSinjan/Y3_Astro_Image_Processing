@@ -31,7 +31,7 @@ if __name__ == '__main__':
         # fig.colorbar(image_map)
         plt.show()
 
-        m = np.arange(9, 17, 0.5) # need to be wary of this range - could change for different sigma
+        m = np.arange(10, 15.5, 0.5) # need to be wary of this range - could change for different sigma
         N = [(len(list(filter(lambda x: x < m_i, mag)))) for m_i in m]
         plt.plot(m, N)
         plt.show()

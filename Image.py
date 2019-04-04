@@ -109,10 +109,11 @@ class Image:
                 break
             obj = StellarObject(peak_points, peak_val)
             obj.get_background_rect(self.data, self.known_magnitude, 3)
+            #obj.plot_me(self.data, self.mask)
             if 0.95 <= len(peak_points) / obj.bounding_rect.get_area() or len(
                     peak_points) / obj.bounding_rect.get_area() <= 0.3:
                 # print("This object doesn't seem very circular.")
-                # obj.plot_me(self.data, self.mask)
+                #
                 # reject = input("Accept: (Y/N):  ") == "N"
                 # if reject:
                 #     for point in peak_points:
@@ -275,11 +276,11 @@ if __name__ == '__main__':
         img.trim(150)
         # img.plotarcsinh()
         # img.histogram(3500, 3350)
-        sigma = 2.5
-        thresh_var = 0.7
+        sigma = 5
+        thresh_var = 0.85
         img.filter_by_sigma(sigma)
         # print(img.data.shape[0], img.data.shape[1])
-        catalogue, rejected = img.create_catalogue(filename=f"survey_{sigma}sig_{thresh_var}.cat", thresh=thresh_var)
+        catalogue, rejected = img.create_catalogue(filename=f"survey_{sigma}sig_{thresh_var}_master.cat", thresh=thresh_var)
         print(len(catalogue), rejected)
 
     sys.setrecursionlimit(10 ** 5)
