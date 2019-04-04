@@ -284,13 +284,13 @@ if __name__ == '__main__':
         img.create_mask_map(50000, rect_masks=bleeding_edge)
         img.trim(150)
         img.plotarcsinh()
-        img.histogram(3470, 3360)
-        #sigma = 5
-        #thresh_var = 0.85
-        #img.filter_by_sigma(sigma)
+        #img.histogram(3470, 3360)
+        sigma = 5
+        thresh_var = 0.85
+        img.filter_by_sigma(sigma)
         # print(img.data.shape[0], img.data.shape[1])
-        #catalogue, rejected = img.create_catalogue(filename=f"survey_{sigma}sig_{thresh_var}_new.cat", thresh=thresh_var)
-        #print(len(catalogue), rejected)
+        catalogue, rejected = img.create_catalogue(filename=f"survey_{sigma}sig_{thresh_var}_new.cat", thresh=thresh_var)
+        print(len(catalogue), rejected)
 
     sys.setrecursionlimit(10 ** 5)
     threading.stack_size(67108864)  # Largest possible stack size of 64MB on Windows
