@@ -101,7 +101,7 @@ class Image:
         i = 0
         while max(sources.flatten()) > 0:
             sources = self.data * self.mask
-            max_var = sources.argmax()
+            #max_var = sources.argmax()
             peak_y, peak_x = np.unravel_index(sources.argmax(), sources.shape)
             peak_val = self.data[peak_y, peak_x]
             peak_points = []
@@ -111,31 +111,22 @@ class Image:
                 break
             obj = StellarObject(peak_points, peak_val)
 
-            catalogue_list.append(obj)
-
-            # add to catalogue
-            for point in peak_points:
-                self.mask[point[0], point[1]] = False
-
-        # print("This object doesn't seem very circular.")
-        # obj.plot_me(self.data, self.mask)
-        # reject = input("Accept: (Y/N):  ") == "N"
-        # if reject:
-        #     for point in peak_points:
-        #         self.mask[point[0], point[1]] = False
-        #     continue
-
-        for obj in catalogue_list:
-            obj.get_background_rect(self.data, self.mask, self.known_magnitude, 3)
             if 0.95 <= len(obj.points) / obj.bounding_rect.get_area() or len(
                     obj.points) / obj.bounding_rect.get_area() <= 0.3:
-                catalogue_list.remove(obj)
                 for point in obj.points:
                     self.mask[point[0], point[1]] = False
                 i += 1
-                continue
-            obj.plot_me(self.data, self.mask)
+
+            else:        # add to catalogue
+                catalogue_list.append(obj)
+
+                for point in peak_points:
+                    self.mask[point[0], point[1]] = False
+
+        for obj in catalogue_list:
+            obj.get_background_rect(self.data, self.mask, self.known_magnitude,3)
             mag_list.append(obj.mag)
+            obj.plot_me(self.data, self.mask)
 
         if filename:
             export_df = pd.DataFrame([item.data_tuple for item in catalogue_list], columns=["Points", "Peak Val", "Source Count", "Local Background", "Relative Magnitude"])
