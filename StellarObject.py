@@ -78,10 +78,9 @@ class StellarObject:
 
     def get_background_rect(self, data, mask, relative_mag, sf=1.5):
         self.bg_bound = self.BoundingRect.scale_rect_origin(self.bounding_rect, data, sf)
-        bg_pts = filter(lambda x: data[x] < 3419.24+5*11.65, self.bg_bound.get_enc_points()) #this gets only background
-        data_new = data
-        total_count = [data_new[i] for i in self.bg_bound.get_enc_points()] # this still could get nearby objects however
-        bg_vals = [data_new[val] for val in bg_pts]
+        bg_pts = filter(lambda x: x not in self.points, self.bg_bound.get_enc_points())
+        total_count = [data[i] for i in self.bg_bound.get_enc_points()]
+        bg_vals = [data[val] for val in bg_pts]
         self.local_background = np.mean(bg_vals)
         total_background_count = self.local_background * len(
             self.bg_bound.get_enc_points())  # total background counts for all pixels

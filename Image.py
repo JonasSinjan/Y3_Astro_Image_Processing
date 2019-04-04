@@ -104,6 +104,7 @@ class Image:
             #max_var = sources.argmax()
             peak_y, peak_x = np.unravel_index(sources.argmax(), sources.shape)
             peak_val = self.data[peak_y, peak_x]
+            print(peak_val)
             peak_points = []
             flood_fill(peak_y, peak_x, peak_val, self.data, peak_points, mask=self.mask, threshold=thresh,
                        gradient_decent=True)
@@ -111,6 +112,7 @@ class Image:
                 break
             obj = StellarObject(peak_points, peak_val)
 
+            # circularity requirement
             if 0.95 <= len(obj.points) / obj.bounding_rect.get_area() or len(
                     obj.points) / obj.bounding_rect.get_area() <= 0.3:
                 for point in obj.points:
@@ -124,7 +126,7 @@ class Image:
                     self.mask[point[0], point[1]] = False
 
         for obj in catalogue_list:
-            obj.get_background_rect(self.data, self.mask, self.known_magnitude,3)
+            obj.get_background_rect(self.data, self.mask, self.known_magnitude, 3)
             mag_list.append(obj.mag)
             obj.plot_me(self.data, self.mask)
 
