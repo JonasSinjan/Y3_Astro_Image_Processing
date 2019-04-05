@@ -9,7 +9,7 @@ if __name__ == '__main__':
         img = Image("A1_mosaic.fits")
         img.trim(150)
         fig, ax = plt.subplots(figsize=(6, 11), dpi=800)
-        image_map = ax.imshow(img.data, origin="lower", cmap='gray', aspect="equal")
+        image_map = ax.imshow(np.log10(img.data), origin="lower", cmap='binary', aspect="equal")
 
         df = pd.read_csv(filename)
         mag = df["Relative Magnitude"]
@@ -27,12 +27,12 @@ if __name__ == '__main__':
                                            facecolor="none"))
         ax.set_xlabel("X")
         ax.set_ylabel("Y")
-        #ax.plot(1450, 3100, color='red', label='Detected Galaxies')
-        #ax.legend()
-        #fig.colorbar(image_map)
+        # ax.plot(1450, 3100, color='red', label='Detected Galaxies')
+        # ax.legend()
+        # fig.colorbar(image_map)
         plt.show()
 
-        m = np.arange(10,16, 0.25)  # need to be wary of this range - could change for different sigma
+        m = np.arange(10, 25, 0.25)  # need to be wary of this range - could change for different sigma
         N = [(len(list(filter(lambda x: x < m_i, mag)))) for m_i in m]
         plt.plot(m, N)
         plt.xlabel('Magnitude Limit')
@@ -57,5 +57,5 @@ if __name__ == '__main__':
 
     sys.setrecursionlimit(10 ** 5)
     threading.stack_size(67108864)  # Largest possible stack size of 64MB on Windows
-    main_thread = threading.Thread(target=main, args=('survey_5sig_0.85.cat',))
+    main_thread = threading.Thread(target=main, args=('survey_5sig_0.9_bugfix_circ_com_test.cat',))
     main_thread.start()
