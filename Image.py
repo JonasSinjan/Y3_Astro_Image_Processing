@@ -31,22 +31,22 @@ def flood_fill(x, y, val, data, closedset, step_size=1, threshold=0.01, gradient
         return
 
     if x + step_size < data.shape[0]:
-        if (data[x + step_size, y] - this_pt) / this_pt <= 0.1 or not gradient_decent:
+        if (data[x + step_size, y] - this_pt) / this_pt <= 0.05 or not gradient_decent:
             flood_fill(int(x + step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold,
                        gradient_decent=gradient_decent,
                        always_up=always_up, mask=mask)
     if x - step_size >= 0:
-        if (data[x - step_size, y] - this_pt) / this_pt <= 0.1 or not gradient_decent:
+        if (data[x - step_size, y] - this_pt) / this_pt <= 0.05 or not gradient_decent:
             flood_fill(int(x - step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold,
                        gradient_decent=gradient_decent,
                        always_up=always_up, mask=mask)
     if y + step_size < data.shape[1]:
-        if (data[x, y + step_size] - this_pt) / this_pt <= 0.1 or not gradient_decent:
+        if (data[x, y + step_size] - this_pt) / this_pt <= 0.05 or not gradient_decent:
             flood_fill(int(x), int(y + step_size), val, data, closedset, step_size=step_size, threshold=threshold,
                        gradient_decent=gradient_decent,
                        always_up=always_up, mask=mask)
     if y - step_size >= 0:
-        if (data[x, y - step_size] - this_pt) / this_pt <= 0.1 or not gradient_decent:
+        if (data[x, y - step_size] - this_pt) / this_pt <= 0.05 or not gradient_decent:
             flood_fill(int(x), int(y - step_size), val, data, closedset, step_size=step_size, threshold=threshold,
                        gradient_decent=gradient_decent,
                        always_up=always_up, mask=mask)
@@ -111,8 +111,10 @@ class Image:
             obj = StellarObject(peak_points, peak_val)
             obj.get_background_rect(self.data, self.known_magnitude, 3)
             #obj.plot_me(self.data, self.mask)
-            if len(peak_points) / obj.bounding_rect.get_area() <= 0.3 or obj.bounding_rect.get_origin() not in peak_points:
-                obj.plot_me(self.data,self.mask)
+            if len(peak_points) / obj.bounding_rect.get_area() <= 0.35 or obj.get_com() not in peak_points:
+                print(peak_points)
+                print(obj.get_com())
+                obj.plot_me(self.data, self.mask)
                 # print("This object doesn't seem very circular.")
                 # obj.plot_me(self.data, self.mask)
                 # reject = input("Accept: (Y/N):  ") == "N"
@@ -277,7 +279,7 @@ if __name__ == '__main__':
         # img.plotarcsinh()
         # img.histogram(3500, 3350)
         sigma = 5
-        thresh_var = 0.85
+        thresh_var = 0.80
         img.filter_by_sigma(sigma)
         # print(img.data.shape[0], img.data.shape[1])
         catalogue, rejected = img.create_catalogue(filename=f"survey_{sigma}sig_{thresh_var}_bugfix_0.65circ.cat", thresh=thresh_var)

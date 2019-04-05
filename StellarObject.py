@@ -21,6 +21,9 @@ class StellarObject:
         def get_origin(self):
             return (self.left + self.right) / 2, (self.top + self.bottom) / 2
 
+        def get_origin_pt(self):
+            return int((self.top + self.bottom) / 2), int((self.left + self.right) / 2)
+
         def get_enc_points(self):
             return [(y, x) for y in range(self.bottom, self.top + 1) for x in range(self.left, self.right + 1)]
 
@@ -63,11 +66,14 @@ class StellarObject:
                   aspect="equal")
         ax.scatter(np.transpose(self.points)[1] - x + 30, np.transpose(self.points)[0] - y + 30, s=1)
         ax.add_patch(self.bounding_rect.get_patch(-x + 30, -y + 30))
-        str_1 = len(self.points)/self.bounding_rect.get_area()
+        str_1 = len(self.points) / self.bounding_rect.get_area()
         ax.add_patch(self.bg_bound.get_patch(-x + 30, -y + 30))
         ax.plot(15, 15, label=f'{str_1}')
         plt.legend()
         plt.show()
+
+    def get_com(self):
+        return int(sum(p[0] for p in self.points) / len(self.points)), int(sum(p[1] for p in self.points) / len(self.points))
 
     def set_bouding_rect(self):
         y_points, x_points = np.transpose(self.points)
