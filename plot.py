@@ -23,15 +23,15 @@ if __name__ == '__main__':
             bottom = min(y_points) - 1
             right = max(x_points) + 1
             top = max(y_points) + 1
-            ax.add_patch(patches.Rectangle((left, bottom), right - left, top - bottom,linewidth=1, edgecolor='r',
-                                       facecolor="none"))
+            ax.add_patch(patches.Rectangle((left, bottom), right - left, top - bottom, linewidth=1, edgecolor='r',
+                                           facecolor="none"))
         ax.set_xlabel("X")
         ax.set_ylabel("Y")
 
-        # fig.colorbar(image_map)
+        fig.colorbar(image_map)
         plt.show()
 
-        m = np.arange(9, 17, 0.5) # need to be wary of this range - could change for different sigma
+        m = np.arange(10,25, 0.5)  # need to be wary of this range - could change for different sigma
         N = [(len(list(filter(lambda x: x < m_i, mag)))) for m_i in m]
         plt.plot(m, N)
         plt.show()
@@ -47,5 +47,5 @@ if __name__ == '__main__':
 
     sys.setrecursionlimit(10 ** 5)
     threading.stack_size(67108864)  # Largest possible stack size of 64MB on Windows
-    main_thread = threading.Thread(target=main, args=('survey_5sig_0.85.cat',))
+    main_thread = threading.Thread(target=main, args=('survey_2.5sig_0.8.cat',))
     main_thread.start()

@@ -1,8 +1,11 @@
 import sys
 import threading
+
+from matplotlib import patches
 from scipy.stats import linregress
 import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.animation as plt_anim
 from astropy.io import fits
 from scipy.optimize import curve_fit
 import pandas as pd
@@ -18,11 +21,6 @@ def flood_fill(x, y, val, data, closedset, step_size=1, threshold=0.01, gradient
         return
     if (x, y) in closedset:
         return
-    # No condition to resolve issue for when flood fill works near boundary
-    if x + step_size >= data.shape[0] or y + step_size >= data.shape[1]:
-        return
-    if x - step_size < 0 or y - step_size < 0:
-        return
     if mask is not None:
         if not mask[x, y]:
             return
@@ -32,23 +30,27 @@ def flood_fill(x, y, val, data, closedset, step_size=1, threshold=0.01, gradient
         closedset.append((x, y))
     else:
         return
-    # Have a deep think here about whether this is working correctly.
-    if (data[x + step_size, y] - this_pt) / this_pt <= 0.1 or not gradient_decent:
-        flood_fill(int(x + step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold,
-                   gradient_decent=gradient_decent,
-                   always_up=always_up, mask=mask)
-    if (data[x - step_size, y] - this_pt) / this_pt <= 0.1 or not gradient_decent:
-        flood_fill(int(x - step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold,
-                   gradient_decent=gradient_decent,
-                   always_up=always_up, mask=mask)
-    if (data[x, y + step_size] - this_pt) / this_pt <= 0.1 or not gradient_decent:
-        flood_fill(int(x), int(y + step_size), val, data, closedset, step_size=step_size, threshold=threshold,
-                   gradient_decent=gradient_decent,
-                   always_up=always_up, mask=mask)
-    if (data[x, y - step_size] - this_pt) / this_pt <= 0.1 or not gradient_decent:
-        flood_fill(int(x), int(y - step_size), val, data, closedset, step_size=step_size, threshold=threshold,
-                   gradient_decent=gradient_decent,
-                   always_up=always_up, mask=mask)
+
+    if x + step_size < data.shape[0]:
+        if (data[x + step_size, y] - this_pt) / this_pt <= 0.1 or not gradient_decent:
+            flood_fill(int(x + step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold,
+                       gradient_decent=gradient_decent,
+                       always_up=always_up, mask=mask)
+    if x - step_size >= 0:
+        if (data[x - step_size, y] - this_pt) / this_pt <= 0.1 or not gradient_decent:
+            flood_fill(int(x - step_size), int(y), val, data, closedset, step_size=step_size, threshold=threshold,
+                       gradient_decent=gradient_decent,
+                       always_up=always_up, mask=mask)
+    if y + step_size < data.shape[1]:
+        if (data[x, y + step_size] - this_pt) / this_pt <= 0.1 or not gradient_decent:
+            flood_fill(int(x), int(y + step_size), val, data, closedset, step_size=step_size, threshold=threshold,
+                       gradient_decent=gradient_decent,
+                       always_up=always_up, mask=mask)
+    if y - step_size >= 0:
+        if (data[x, y - step_size] - this_pt) / this_pt <= 0.1 or not gradient_decent:
+            flood_fill(int(x), int(y - step_size), val, data, closedset, step_size=step_size, threshold=threshold,
+                       gradient_decent=gradient_decent,
+                       always_up=always_up, mask=mask)
 
 
 class Image:
@@ -122,13 +124,12 @@ class Image:
                     self.mask[point[0], point[1]] = False
                 i += 1
                 continue
-
             catalogue_list.append(obj)
             mag_list.append(obj.mag)
             # add to catalogue
             for point in peak_points:
                 self.mask[point[0], point[1]] = False
-
+            print(f"\r{len(catalogue_list)}", end="",flush=True)
         if filename:
             export_df = pd.DataFrame([item.data_tuple for item in catalogue_list], columns=["Points", "Peak Val", "Source Count", "Local Background", "Relative Magnitude"])
             export_df.to_csv(filename, index=False)
@@ -240,7 +241,7 @@ class Image:
         sky = ax.imshow(np.arcsinh(self.data * self.mask), origin="lower", cmap="gray", aspect="equal")
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
-        #fig.colorbar(sky)
+        # fig.colorbar(sky)
         plt.show()
 
     def mag(self):  # for entire dataset
@@ -275,12 +276,13 @@ if __name__ == '__main__':
         img.trim(150)
         # img.plotarcsinh()
         # img.histogram(3500, 3350)
-        sigma = 2.5
+        sigma = 5
         thresh_var = 0.8
         img.filter_by_sigma(sigma)
         # print(img.data.shape[0], img.data.shape[1])
         catalogue, rejected = img.create_catalogue(filename=f"survey_{sigma}sig_{thresh_var}.cat", thresh=thresh_var)
         print(len(catalogue), rejected)
+
 
     sys.setrecursionlimit(10 ** 5)
     threading.stack_size(67108864)  # Largest possible stack size of 64MB on Windows
