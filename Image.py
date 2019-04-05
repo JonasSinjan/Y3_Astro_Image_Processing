@@ -111,8 +111,15 @@ class Image:
             obj = StellarObject(peak_points, peak_val)
             obj.get_background_rect(self.data, self.known_magnitude, 3)
             #obj.plot_me(self.data, self.mask)
-            if len(peak_points) / obj.bounding_rect.get_area() <= 0.65:
-                obj.plot_me(self.data, self.mask)
+            if len(peak_points) / obj.bounding_rect.get_area() <= 0.3 or obj.bounding_rect.get_origin() not in peak_points:
+                obj.plot_me(self.data,self.mask)
+                # print("This object doesn't seem very circular.")
+                # obj.plot_me(self.data, self.mask)
+                # reject = input("Accept: (Y/N):  ") == "N"
+                # if reject:
+                #     for point in peak_points:
+                #         self.mask[point[0], point[1]] = False
+                #     continue
                 for point in peak_points:
                     self.mask[point[0], point[1]] = False
                 i += 1

@@ -32,7 +32,7 @@ if __name__ == '__main__':
         #fig.colorbar(image_map)
         plt.show()
 
-        m = np.arange(10,25, 0.5)  # need to be wary of this range - could change for different sigma
+        m = np.arange(10,16, 0.25)  # need to be wary of this range - could change for different sigma
         N = [(len(list(filter(lambda x: x < m_i, mag)))) for m_i in m]
         plt.plot(m, N)
         plt.xlabel('Magnitude Limit')
@@ -57,5 +57,5 @@ if __name__ == '__main__':
 
     sys.setrecursionlimit(10 ** 5)
     threading.stack_size(67108864)  # Largest possible stack size of 64MB on Windows
-    main_thread = threading.Thread(target=main, args=('survey_5sig_0.7_bugfix.cat',))
+    main_thread = threading.Thread(target=main, args=('survey_5sig_0.85.cat',))
     main_thread.start()
