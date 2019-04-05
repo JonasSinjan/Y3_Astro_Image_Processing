@@ -5,7 +5,6 @@ from matplotlib import patches
 from scipy.stats import linregress
 import matplotlib.pyplot as plt
 import numpy as np
-import matplotlib.animation as plt_anim
 from astropy.io import fits
 from scipy.optimize import curve_fit
 import pandas as pd
@@ -111,6 +110,7 @@ class Image:
                 break
             obj = StellarObject(peak_points, peak_val)
             obj.get_background_rect(self.data, self.known_magnitude, 3)
+            #obj.plot_me(self.data, self.mask)
             if 0.95 <= len(peak_points) / obj.bounding_rect.get_area() or len(
                     peak_points) / obj.bounding_rect.get_area() <= 0.3:
                 # print("This object doesn't seem very circular.")
@@ -241,7 +241,7 @@ class Image:
         sky = ax.imshow(np.arcsinh(self.data * self.mask), origin="lower", cmap="gray", aspect="equal")
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
-        # fig.colorbar(sky)
+        #fig.colorbar(sky)
         plt.show()
 
     def mag(self):  # for entire dataset
