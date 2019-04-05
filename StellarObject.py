@@ -65,7 +65,7 @@ class StellarObject:
         ax.add_patch(self.bounding_rect.get_patch(-x + 30, -y + 30))
         str_1 = len(self.points)/self.bounding_rect.get_area()
         ax.add_patch(self.bg_bound.get_patch(-x + 30, -y + 30))
-        ax.plot(x, y, label=f'{str_1}')
+        ax.plot(15, 15, label=f'{str_1}')
         plt.legend()
         plt.show()
 

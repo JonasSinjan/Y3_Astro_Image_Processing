@@ -111,8 +111,7 @@ class Image:
             obj = StellarObject(peak_points, peak_val)
             obj.get_background_rect(self.data, self.known_magnitude, 3)
             #obj.plot_me(self.data, self.mask)
-            if 0.95 <= len(peak_points) / obj.bounding_rect.get_area() or len(
-                    peak_points) / obj.bounding_rect.get_area() <= 0.3:
+            if len(peak_points) / obj.bounding_rect.get_area() <= 0.65:
                 obj.plot_me(self.data, self.mask)
                 for point in peak_points:
                     self.mask[point[0], point[1]] = False
@@ -274,7 +273,7 @@ if __name__ == '__main__':
         thresh_var = 0.85
         img.filter_by_sigma(sigma)
         # print(img.data.shape[0], img.data.shape[1])
-        catalogue, rejected = img.create_catalogue(filename=f"survey_{sigma}sig_{thresh_var}_bugfix.cat", thresh=thresh_var)
+        catalogue, rejected = img.create_catalogue(filename=f"survey_{sigma}sig_{thresh_var}_bugfix_0.65circ.cat", thresh=thresh_var)
         print(len(catalogue), rejected)
 
 
