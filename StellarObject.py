@@ -62,13 +62,15 @@ class StellarObject:
     def plot_me(self, data, mask):
         fig, ax = plt.subplots()
         y, x = self.points[0]
-        ax.imshow(data[y - 30:y + 30, x - 30:x + 30] * mask[y - 30:y + 30, x - 30:x + 30], cmap="gray", origin="lower",
+        ax.imshow(data[y - 60:y + 60, x - 60:x + 60] * mask[y - 60:y + 60, x - 60:x + 60], cmap="gray", origin="lower",
                   aspect="equal")
-        ax.scatter(np.transpose(self.points)[1] - x + 30, np.transpose(self.points)[0] - y + 30, s=1)
-        ax.add_patch(self.bounding_rect.get_patch(-x + 30, -y + 30))
+        ax.scatter(np.transpose(self.points)[1] - x + 60, np.transpose(self.points)[0] - y + 60, s=1)
+        ax.add_patch(self.bounding_rect.get_patch(-x + 60, -y + 60))
         str_1 = len(self.points) / self.bounding_rect.get_area()
-        ax.add_patch(self.bg_bound.get_patch(-x + 30, -y + 30))
-        ax.plot(15, 15, label=f'{str_1}')
+        ax.add_patch(self.bg_bound.get_patch(-x + 60, -y + 60))
+        ax.plot(0, 0, color='black', label=f'{str_1}')
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
         plt.legend()
         plt.show()
 
