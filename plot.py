@@ -26,7 +26,7 @@ if __name__ == '__main__':
             bottom = min(y_points) - 1
             right = max(x_points) + 1
             top = max(y_points) + 1
-            ax.add_patch(patches.Rectangle((left, bottom), right - left, top - bottom, linewidth=0.8, edgecolor='r',
+            ax.add_patch(patches.Rectangle((left, bottom), right - left, top - bottom, linewidth=0.4, edgecolor='r',
                                            facecolor="none"))
             #ax.scatter(np.transpose(x_points) - x + 30, np.transpose(y_points) - y + 30, s=1)
         ax.set_xlabel("X")
@@ -34,8 +34,10 @@ if __name__ == '__main__':
         # ax.plot(1450, 3100, color='red', label='Detected Galaxies')
         # ax.legend()
         # fig.colorbar(image_map)
-        ax.set_ylim(3920, 3975)
-        ax.set_xlim(380, 440)
+        #ax.set_ylim(3920, 3975)
+        #ax.set_xlim(380, 440)
+        ax.set_ylim(3600, 4200)
+        ax.set_xlim(0,600)
         plt.show()
 
         # m = np.arange(10, 25, 0.25)  # need to be wary of this range - could change for different sigma

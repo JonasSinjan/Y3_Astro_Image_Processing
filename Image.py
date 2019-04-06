@@ -113,8 +113,8 @@ class Image:
             #obj.plot_me(self.data, self.mask)
             if len(peak_points) / obj.bounding_rect.get_area() <= 0.35 or obj.get_com() not in peak_points:
                 #print(peak_points)
-                print(obj.get_com())
-                obj.plot_me(self.data, self.mask)
+                #print(obj.get_com())
+                #obj.plot_me(self.data, self.mask,75)
                 # print("This object doesn't seem very circular.")
                 # obj.plot_me(self.data, self.mask)
                 # reject = input("Accept: (Y/N):  ") == "N"
@@ -279,7 +279,7 @@ if __name__ == '__main__':
         # img.plotarcsinh()
         # img.histogram(3500, 3350)
         sigma = 5
-        thresh_var = 0.9
+        thresh_var = 0.875
         img.filter_by_sigma(sigma)
         # print(img.data.shape[0], img.data.shape[1])
         catalogue, rejected = img.create_catalogue(filename=f"survey_{sigma}sig_{thresh_var}_bugfix_circ_com_test.cat", thresh=thresh_var)
