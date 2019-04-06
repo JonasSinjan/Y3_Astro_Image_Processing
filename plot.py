@@ -7,9 +7,11 @@ if __name__ == '__main__':
         # open csv and turn it into an array called catalogue
         # retrieve magnitudes and turn it into arr/list
         img = Image("A1_mosaic.fits")
+        img.create_mask_map(50000, rect_masks=bleeding_edge)
         img.trim(150)
+        img.filter_by_sigma(5)
         fig, ax = plt.subplots(figsize=(6, 11), dpi=800)
-        image_map = ax.imshow(np.log10(img.data), origin="lower", cmap='binary', aspect="equal")
+        image_map = ax.imshow((img.data * img.mask), origin="lower", cmap='gray', aspect="equal")
 
         df = pd.read_csv(filename)
         mag = df["Relative Magnitude"]
@@ -23,13 +25,15 @@ if __name__ == '__main__':
             bottom = min(y_points) - 1
             right = max(x_points) + 1
             top = max(y_points) + 1
-            ax.add_patch(patches.Rectangle((left, bottom), right - left, top - bottom, linewidth=0.2, edgecolor='r',
+            ax.add_patch(patches.Rectangle((left, bottom), right - left, top - bottom, linewidth=0.8, edgecolor='r',
                                            facecolor="none"))
         ax.set_xlabel("X")
         ax.set_ylabel("Y")
         # ax.plot(1450, 3100, color='red', label='Detected Galaxies')
         # ax.legend()
         # fig.colorbar(image_map)
+        #ax.set_ylim(3850, 4040)
+        #ax.set_xlim(300, 500)
         plt.show()
 
         m = np.arange(10, 25, 0.25)  # need to be wary of this range - could change for different sigma
