@@ -45,9 +45,9 @@ if __name__ == '__main__':
 
         mag_max = [0]*len(mag)
         mag_min = [0]*len(mag)
-        for count, i in enumerate(mag_err):
-            mag_max[count] = (mag[count]+i)
-            mag_min[count] = (mag[count]-i)
+        for count, err in enumerate(mag_err):
+            mag_max[count] = (mag[count]+err)
+            mag_min[count] = (mag[count]-err)
 
         N_max = [(len(list(filter(lambda x: x < m_i, mag_min)))) for m_i in m]
         N_min = [(len(list(filter(lambda x: x < m_i, mag_max)))) for m_i in m]
