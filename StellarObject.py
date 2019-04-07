@@ -105,4 +105,4 @@ class StellarObject:
 
     @property
     def data_tuple(self):
-        return (self.points, self.peak_val, self.source_count, self.local_background, self.mag)
+        return (self.points, self.peak_val, self.source_count, self.local_background, self.mag, self.mag_err)
