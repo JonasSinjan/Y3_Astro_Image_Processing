@@ -95,6 +95,7 @@ class StellarObject:
             self.bg_bound.get_enc_points())  # total background counts for all pixels
         self.source_count = sum(total_count) - total_background_count  # counts just from object
         self.mag = relative_mag - 2.5 * np.log10(self.source_count)
+        self.mag_err = 5/(2*self.source_count*np.log(10))*np.sqrt(self.source_count)
         # plt.hist(bg_vals)
         # plt.show()
 
