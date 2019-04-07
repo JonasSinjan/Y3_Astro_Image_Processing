@@ -98,6 +98,7 @@ class Image:
         sources = self.data * self.mask
         catalogue_list = []
         mag_list = []
+        err_list = []
         i = 0
         while max(sources.flatten()) > 0:
             sources = self.data * self.mask
@@ -128,6 +129,7 @@ class Image:
                 continue
             catalogue_list.append(obj)
             mag_list.append(obj.mag)
+            err_list.append(obj.mag_err)
             # add to catalogue
             for point in peak_points:
                 self.mask[point[0], point[1]] = False
