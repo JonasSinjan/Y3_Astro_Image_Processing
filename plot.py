@@ -42,14 +42,17 @@ if __name__ == '__main__':
         # plt.show()
         plt.figure()
         m = np.arange(9, 25, 0.25)  # need to be wary of this range - could change for different sigma
-        mag_max=[]
-        mag_min =[]
+
+        mag_max = [0]*len(mag)
+        mag_min = [0]*len(mag)
         for count, i in enumerate(mag_err):
-            mag_max.append(mag[count]+i)
-            mag_min.append(mag[count]-i)
+            mag_max[count] = (mag[count]+i)
+            mag_min[count] = (mag[count]-i)
+
         N_max = [(len(list(filter(lambda x: x < m_i, mag_min)))) for m_i in m]
         N_min = [(len(list(filter(lambda x: x < m_i, mag_max)))) for m_i in m]
-        #plt.plot(m, N)
+
+        plt.plot(m, N)
         plt.xlabel('Magnitude Limit')
         plt.ylabel('Number of Galaxies')
         plt.title(f'Number of galaxies against magnitude limit\n{filename}')
