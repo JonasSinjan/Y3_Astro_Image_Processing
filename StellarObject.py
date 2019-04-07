@@ -62,7 +62,8 @@ class StellarObject:
     def plot_me(self, data, mask, size=30):
         fig, ax = plt.subplots()
         y, x = self.points[0]
-        ax.imshow(data[y - size:y + size, x - size:x + size] * mask[y - size:y + size, x - size:x + size], cmap="gray", origin="lower",
+        ax.imshow(data[y - size:y + size, x - size:x + size] * mask[y - size:y + size, x - size:x + size], cmap="gray",
+                  origin="lower",
                   aspect="equal")
         ax.scatter(np.transpose(self.points)[1] - x + size, np.transpose(self.points)[0] - y + size, s=1)
         ax.add_patch(self.bounding_rect.get_patch(-x + size, -y + size))
@@ -75,7 +76,8 @@ class StellarObject:
         plt.show()
 
     def get_com(self):
-        return int(sum(p[0] for p in self.points) / len(self.points)), int(sum(p[1] for p in self.points) / len(self.points))
+        return int(sum(p[0] for p in self.points) / len(self.points)), int(
+            sum(p[1] for p in self.points) / len(self.points))
 
     def set_bouding_rect(self):
         y_points, x_points = np.transpose(self.points)
@@ -88,20 +90,21 @@ class StellarObject:
     def get_background_rect(self, data, relative_mag, sf=1.5):
         self.bg_bound = self.BoundingRect.scale_rect_origin(self.bounding_rect, data, sf)
         bg_pts = filter(lambda x: x not in self.points, self.bg_bound.get_enc_points())
-        total_count = [data[i] for i in self.bg_bound.get_enc_points()]
+        count_arr = [data[i] for i in self.bg_bound.get_enc_points()]
         bg_vals = [data[val] for val in bg_pts]
         self.local_background = np.mean(bg_vals)
         total_background_count = self.local_background * len(
             self.bg_bound.get_enc_points())  # total background counts for all pixels
-        self.source_count = sum(total_count) - total_background_count  # counts just from object
+        self.source_count = sum(count_arr) - total_background_count  # counts just from object
         self.mag = relative_mag - 2.5 * np.log10(self.source_count)
-        self.mag_err = 5/(2*self.source_count*np.log(10))*np.sqrt(self.source_count)
+        self.mag_err = 5 / (2 * self.source_count * np.log(10)) * np.sqrt(self.source_count)
         # plt.hist(bg_vals)
         # plt.show()
 
     @property
     def data(self):
-        return {"Points": self.points, "Peak Val": self.peak_val, "Source Count": self.source_count, "Local Background": self.local_background, "Relative Magnitude": self.mag}
+        return {"Points": self.points, "Peak Val": self.peak_val, "Source Count": self.source_count,
+                "Local Background": self.local_background, "Relative Magnitude": self.mag}
 
     @property
     def data_tuple(self):
