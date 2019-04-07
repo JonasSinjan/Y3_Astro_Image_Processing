@@ -51,20 +51,34 @@ if __name__ == '__main__':
 
         N_max = [(len(list(filter(lambda x: x < m_i, mag_min)))) for m_i in m]
         N_min = [(len(list(filter(lambda x: x < m_i, mag_max)))) for m_i in m]
+        N = [(len(list(filter(lambda x: x < m_i, mag)))) for m_i in m]
+        N_range = [(max_N-N_min[count])/2 for count, max_N in enumerate(N_max)]
 
-        plt.plot(m, N)
+        plt.errorbar(m, N, yerr=N_range)
         plt.xlabel('Magnitude Limit')
         plt.ylabel('Number of Galaxies')
         plt.title(f'Number of galaxies against magnitude limit\n{filename}')
         plt.show()
 
-        m = np.arange(8, 25, 0.5)  # need to be wary of this range - could change for different sigma
+        m = np.arange(9.5, 16.4, 0.5)  # need to be wary of this range - could change for different sigma
+        mag_max = [0] * len(mag)
+        mag_min = [0] * len(mag)
+        for count, err in enumerate(mag_err):
+            mag_max[count] = (mag[count] + err)
+            mag_min[count] = (mag[count] - err)
+
+        N_max = [(len(list(filter(lambda x: x < m_i, mag_min)))) for m_i in m]
+        N_min = [(len(list(filter(lambda x: x < m_i, mag_max)))) for m_i in m]
         N = [(len(list(filter(lambda x: x < m_i, mag)))) for m_i in m]
+        N_range = [(max_N - N_min[count]) / 2 for count, max_N in enumerate(N_max)]
+
+        tuple_N = [(np.log10(max_N), np.log10(N_min[count])) for count, max_N in enumerate(N_max)]
+        log_err = np.log10(N_range)
         plt.figure()
         slope, intercept, rvalue, pvalue, stderr = linregress(m, np.log10(N))
         fit_str = f"Linear Regression Fit\nSlope:{round(slope, 3)}±{round(stderr, 3)}\nR^2:{round(rvalue ** 2, 3)}"
-        #plt.plot(m, [i * slope + intercept for i in m if i <=18 or i >=10], 'b-', label=fit_str)
-        plt.errorbar(m, np.log10(N), 'r.', linestyle='--', label='Raw Data')
+        plt.plot(m, [i * slope + intercept for i in m if i <= 18 or i >= 10], 'b-', label=fit_str)
+        plt.errorbar(m, np.log10(N), 'r.', yerr=tuple_N, linestyle='--', label='Raw Data')
         plt.xlabel('Magnitude Limit')
         plt.ylabel('Log_10 (Number of Galaxies)')
 
@@ -75,5 +89,5 @@ if __name__ == '__main__':
 
     sys.setrecursionlimit(10 ** 5)
     threading.stack_size(67108864)  # Largest possible stack size of 64MB on Windows
-    main_thread = threading.Thread(target=main, args=('survey_5sig_0.9threshold.cat',))
+    main_thread = threading.Thread(target=main, args=('survey_5sig_0.9_with_err.cat',))
     main_thread.start()
