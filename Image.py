@@ -281,10 +281,10 @@ if __name__ == '__main__':
         # img.plotarcsinh()
         # img.histogram(3500, 3350)
         sigma = 5
-        thresh_var = 0.9
+        thresh_var = 0.95
         img.filter_by_sigma(sigma)
         # print(img.data.shape[0], img.data.shape[1])
-        catalogue, rejected = img.create_catalogue(filename=f"survey_{sigma}sig_{thresh_var}_circ_com_test.cat", thresh=thresh_var)
+        catalogue, rejected = img.create_catalogue(filename=f"survey_{sigma}sig_{thresh_var}_with_err.cat", thresh=thresh_var)
         print(len(catalogue), rejected)
 
 

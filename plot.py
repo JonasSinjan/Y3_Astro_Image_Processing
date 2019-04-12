@@ -16,30 +16,31 @@ if __name__ == '__main__':
         df = pd.read_csv(filename)
         mag = df["Relative Magnitude"]
         mag_err = df["Magnitude Error"]
+        ratio = mag_err/mag * 100
+        print(max(ratio))
+        star_points = df["Points"]
 
-        # star_points = df["Points"]
-        #
-        # for star in star_points:
-        #     star = np.array(ast.literal_eval(star))
-        #     y_points, x_points = np.transpose(star)
-        #     #y, x = star[0]
-        #     left = min(x_points) - 1
-        #     bottom = min(y_points) - 1
-        #     right = max(x_points) + 1
-        #     top = max(y_points) + 1
-        #     ax.add_patch(patches.Rectangle((left, bottom), right - left, top - bottom, linewidth=0.4, edgecolor='r',
-        #                                    facecolor="none"))
-        #     #ax.scatter(np.transpose(x_points) - x + 30, np.transpose(y_points) - y + 30, s=1)
-        # ax.set_xlabel("X")
-        # ax.set_ylabel("Y")
-        # # ax.plot(1450, 3100, color='red', label='Detected Galaxies')
-        # # ax.legend()
-        # # fig.colorbar(image_map)
-        # #ax.set_ylim(3920, 3975)
-        # #ax.set_xlim(380, 440)
-        # #ax.set_ylim(3600, 4200)
-        # #ax.set_xlim(0,600)
-        # plt.show()
+        for star in star_points:
+            star = np.array(ast.literal_eval(star))
+            y_points, x_points = np.transpose(star)
+            #y, x = star[0]
+            left = min(x_points) - 1
+            bottom = min(y_points) - 1
+            right = max(x_points) + 1
+            top = max(y_points) + 1
+            ax.add_patch(patches.Rectangle((left, bottom), right - left, top - bottom, linewidth=0.4, edgecolor='r',
+                                           facecolor="none"))
+            #ax.scatter(np.transpose(x_points) - x + 30, np.transpose(y_points) - y + 30, s=1)
+        ax.set_xlabel("X")
+        ax.set_ylabel("Y")
+        # ax.plot(1450, 3100, color='red', label='Detected Galaxies')
+        # ax.legend()
+        # fig.colorbar(image_map)
+        #ax.set_ylim(3920, 3975)
+        #ax.set_xlim(380, 440)
+        #ax.set_ylim(3600, 4200)
+        #ax.set_xlim(0,600)
+        plt.show()
         plt.figure()
         m = np.arange(9, 25, 0.25)  # need to be wary of this range - could change for different sigma
 
@@ -54,31 +55,33 @@ if __name__ == '__main__':
         N = [(len(list(filter(lambda x: x < m_i, mag)))) for m_i in m]
         N_range = [(max_N-N_min[count])/2 for count, max_N in enumerate(N_max)]
 
-        plt.errorbar(m, N, yerr=N_range)
+        plt.errorbar(m, N, yerr=N_range, marker='.', markersize='2', color='blue')
         plt.xlabel('Magnitude Limit')
         plt.ylabel('Number of Galaxies')
         plt.title(f'Number of galaxies against magnitude limit\n{filename}')
         plt.show()
-
-        m = np.arange(9.5, 16.4, 0.5)  # need to be wary of this range - could change for different sigma
-        mag_max = [0] * len(mag)
-        mag_min = [0] * len(mag)
+        #
+        m_2 = np.arange(9.5, 17.0, 0.25)  # need to be wary of this range - could change for different sigma
+        mag_max_2 = [0] * len(mag)
+        mag_min_2 = [0] * len(mag)
         for count, err in enumerate(mag_err):
-            mag_max[count] = (mag[count] + err)
-            mag_min[count] = (mag[count] - err)
+            mag_max_2[count] = (mag[count] + err)
+            mag_min_2[count] = (mag[count] - err)
 
-        N_max = [(len(list(filter(lambda x: x < m_i, mag_min)))) for m_i in m]
-        N_min = [(len(list(filter(lambda x: x < m_i, mag_max)))) for m_i in m]
-        N = [(len(list(filter(lambda x: x < m_i, mag)))) for m_i in m]
-        N_range = [(max_N - N_min[count]) / 2 for count, max_N in enumerate(N_max)]
+        N_max_2 = [(len(list(filter(lambda x: x < m_i, mag_min_2)))) for m_i in m_2]
+        N_min_2 = [(len(list(filter(lambda x: x < m_i, mag_max_2)))) for m_i in m_2]
+        N_2 = [(len(list(filter(lambda x: x < m_i, mag)))) for m_i in m_2]
+        #N_range_2 = [(max_N - N_min[count]) / 2 for count, max_N in enumerate(N_max)]
 
-        tuple_N = [(np.log10(max_N), np.log10(N_min[count])) for count, max_N in enumerate(N_max)]
-        log_err = np.log10(N_range)
+        # here the problem is taking log10 of zero leads to infnite/nan for throws an error and code exits here
+        #err_row_arr = np.stack(np.log10(N_max_2), np.log10(N_min_2))
+        #log_err = np.log10(N_range)
         plt.figure()
-        slope, intercept, rvalue, pvalue, stderr = linregress(m, np.log10(N))
+        slope, intercept, rvalue, pvalue, stderr = linregress(m_2, np.log10(N_2))
         fit_str = f"Linear Regression Fit\nSlope:{round(slope, 3)}±{round(stderr, 3)}\nR^2:{round(rvalue ** 2, 3)}"
-        plt.plot(m, [i * slope + intercept for i in m if i <= 18 or i >= 10], 'b-', label=fit_str)
-        plt.errorbar(m, np.log10(N), 'r.', yerr=tuple_N, linestyle='--', label='Raw Data')
+        #plt.plot(m, [i * slope + intercept for i in m_2], 'b-', label=fit_str)
+        plt.plot(m_2, np.log10(N_2), 'r.', label=fit_str)
+        #plt.errorbar(m, np.log10(N_2), 'r.', yerr=err_row_arr, linestyle='--', label='Raw Data')
         plt.xlabel('Magnitude Limit')
         plt.ylabel('Log_10 (Number of Galaxies)')
 
@@ -89,5 +92,5 @@ if __name__ == '__main__':
 
     sys.setrecursionlimit(10 ** 5)
     threading.stack_size(67108864)  # Largest possible stack size of 64MB on Windows
-    main_thread = threading.Thread(target=main, args=('survey_5sig_0.9_with_err.cat',))
+    main_thread = threading.Thread(target=main, args=('survey_5sig_0.95_with_err.cat',))
     main_thread.start()
