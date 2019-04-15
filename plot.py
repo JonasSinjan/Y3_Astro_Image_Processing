@@ -17,7 +17,7 @@ if __name__ == '__main__':
         mag = df["Relative Magnitude"]
         mag_err = df["Magnitude Error"]
         ratio = mag_err/mag * 100
-        print(max(ratio))
+        print(max(ratio), np.mean(ratio))
         star_points = df["Points"]
 
         for star in star_points:
@@ -71,6 +71,8 @@ if __name__ == '__main__':
         N_max_2 = [(len(list(filter(lambda x: x < m_i, mag_min_2)))) for m_i in m_2]
         N_min_2 = [(len(list(filter(lambda x: x < m_i, mag_max_2)))) for m_i in m_2]
         N_2 = [(len(list(filter(lambda x: x < m_i, mag)))) for m_i in m_2]
+        logN_2_err = [1/(np.log(10)*np.sqrt(i)) for i in N_2]
+        #print(len(N_2), len(logN_2_err))
         #N_range_2 = [(max_N - N_min[count]) / 2 for count, max_N in enumerate(N_max)]
 
         # here the problem is taking log10 of zero leads to infnite/nan for throws an error and code exits here
@@ -79,9 +81,9 @@ if __name__ == '__main__':
         plt.figure()
         slope, intercept, rvalue, pvalue, stderr = linregress(m_2, np.log10(N_2))
         fit_str = f"Linear Regression Fit\nSlope:{round(slope, 3)}±{round(stderr, 3)}\nR^2:{round(rvalue ** 2, 3)}"
-        #plt.plot(m, [i * slope + intercept for i in m_2], 'b-', label=fit_str)
-        plt.plot(m_2, np.log10(N_2), 'r.', label=fit_str)
-        #plt.errorbar(m, np.log10(N_2), 'r.', yerr=err_row_arr, linestyle='--', label='Raw Data')
+        plt.plot(m_2, [i * slope + intercept for i in m_2], 'b-', label=fit_str)
+        plt.plot(m_2, np.log10(N_2), 'r.', label='Data')
+        plt.errorbar(m_2, np.log10(N_2), fmt='r.', yerr=logN_2_err, linestyle='--', label='Raw Data')
         plt.xlabel('Magnitude Limit')
         plt.ylabel('Log_10 (Number of Galaxies)')
 
