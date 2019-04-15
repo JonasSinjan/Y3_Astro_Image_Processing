@@ -73,7 +73,8 @@ if __name__ == '__main__':
         N_2 = [(len(list(filter(lambda x: x < m_i, mag)))) for m_i in m_2]
         logN_2_err = [1/(np.log(10)*np.sqrt(i)) for i in N_2]
         #print(len(N_2), len(logN_2_err))
-        #N_range_2 = [(max_N - N_min[count]) / 2 for count, max_N in enumerate(N_max)]
+        N_range_2 = [(np.log10(max_N) - np.log10(N_min[count])) / 2 for count, max_N in enumerate(N_max)]
+        tot_err = [i + N_range_2[count] for count, i in enumerate(logN_2_err)]
 
         # here the problem is taking log10 of zero leads to infnite/nan for throws an error and code exits here
         #err_row_arr = np.stack(np.log10(N_max_2), np.log10(N_min_2))
@@ -82,8 +83,8 @@ if __name__ == '__main__':
         slope, intercept, rvalue, pvalue, stderr = linregress(m_2, np.log10(N_2))
         fit_str = f"Linear Regression Fit\nSlope:{round(slope, 3)}±{round(stderr, 3)}\nR^2:{round(rvalue ** 2, 3)}"
         plt.plot(m_2, [i * slope + intercept for i in m_2], 'b-', label=fit_str)
-        plt.plot(m_2, np.log10(N_2), 'r.', label='Data')
-        plt.errorbar(m_2, np.log10(N_2), fmt='r.', yerr=logN_2_err, linestyle='--', label='Raw Data')
+        #plt.plot(m_2, np.log10(N_2), 'r.', label='Data')
+        plt.errorbar(m_2, np.log10(N_2), fmt='r.', yerr=tot_err, linestyle='--', label='Raw Data')
         plt.xlabel('Magnitude Limit')
         plt.ylabel('Log_10 (Number of Galaxies)')
 
