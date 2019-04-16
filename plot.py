@@ -5,8 +5,9 @@ import ast
 if __name__ == '__main__':
     def main(filename):
         # open csv and turn it into an array called catalogue
-        # retrieve magnitudes and turn it into arr/list
+        # eve magnitudes and turn it into arr/list
         img = Image("A1_mosaic.fits")
+        img.header_dump()
         img.create_mask_map(50000, rect_masks=bleeding_edge)
         img.trim(150)
         img.filter_by_sigma(5)
