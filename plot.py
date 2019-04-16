@@ -124,7 +124,6 @@ if __name__ == '__main__':
 
     sys.setrecursionlimit(10 ** 5)
     threading.stack_size(67108864)  # Largest possible stack size of 64MB on Windows
-    main_thread = threading.Thread(target=main, args=(
-    'survey_5sig_0.75.cat', 'survey_5sig_0.8.cat', 'survey_5sig_0.85.cat', 'survey_5sig_0.9_with_err.cat',
-    'survey_5sig_0.95_with_err_newmask.cat',))
+    main_thread = threading.Thread(target=main_1, args=(
+        'survey_5sig_0.95_with_err_newmask.cat',))
     main_thread.start()

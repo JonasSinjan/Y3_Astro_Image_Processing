@@ -142,7 +142,12 @@ class Image:
     def header_dump(self):
         """Dump contents of the header string to the console"""
         with fits.open(self.filename) as fits_file:
-            print(fits_file[0].header)
+            for key,val in fits_file[0].header.items():
+                if key == "":
+                    continue
+                print(f"{key}:{val} || {fits_file[0].header.comments[key]}")
+
+
     def cluster(self, fill_points):
         # Make sure that this is run on thread with additional stack memory available else this will likely fail!
         plt.xlim(0, self.width)
