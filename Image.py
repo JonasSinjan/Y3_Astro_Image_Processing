@@ -115,7 +115,7 @@ class Image:
             if len(peak_points) / obj.bounding_rect.get_area() <= 0.35 or obj.get_com() not in peak_points:
                 #print(peak_points)
                 #print(obj.get_com())
-                #obj.plot_me(self.data, self.mask,75)
+                #obj.plot_me(self.data, self.mask)
                 # print("This object doesn't seem very circular.")
                 # obj.plot_me(self.data, self.mask)
                 # reject = input("Accept: (Y/N):  ") == "N"
@@ -139,6 +139,10 @@ class Image:
             export_df.to_csv(filename, index=False)
         return catalogue_list, i
 
+    def header_dump(self):
+        """Dump contents of the header string to the console"""
+        with fits.open(self.filename) as fits_file:
+            print(fits_file[0].header)
     def cluster(self, fill_points):
         # Make sure that this is run on thread with additional stack memory available else this will likely fail!
         plt.xlim(0, self.width)
