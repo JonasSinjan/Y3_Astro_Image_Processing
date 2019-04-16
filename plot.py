@@ -6,13 +6,13 @@ if __name__ == '__main__':
     def main(filename):
         # open csv and turn it into an array called catalogue
         # eve magnitudes and turn it into arr/list
-        img = Image("A1_mosaic.fits")
-        img.header_dump()
-        img.create_mask_map(50000, rect_masks=bleeding_edge)
-        img.trim(150)
-        img.filter_by_sigma(5)
-        fig, ax = plt.subplots(figsize=(6, 11), dpi=800)
-        image_map = ax.imshow(np.log10(img.data * img.mask), origin="lower", cmap='gray', aspect="equal")
+        # img = Image("A1_mosaic.fits")
+        # img.header_dump()
+        # img.create_mask_map(50000, rect_masks=bleeding_edge)
+        # img.trim(150)
+        # img.filter_by_sigma(5)
+        # fig, ax = plt.subplots(figsize=(6, 11), dpi=800)
+        # image_map = ax.imshow(np.log10(img.data * img.mask), origin="lower", cmap='gray', aspect="equal")
 
         df = pd.read_csv(filename)
         mag = df["Relative Magnitude"]
@@ -42,7 +42,7 @@ if __name__ == '__main__':
         # # ax.set_ylim(3600, 4200)
         # # ax.set_xlim(0,600)
         # plt.show()
-        # plt.figure()
+        plt.figure()
         m = np.arange(9, 25, 0.25)  # need to be wary of this range - could change for different sigma
 
         mag_max = [0] * len(mag)
@@ -64,7 +64,7 @@ if __name__ == '__main__':
         plt.title(f'Number of galaxies against magnitude limit\n{filename}')
         plt.show()
         #
-        m_2 = np.arange(9.5, 17.0, 0.25)  # need to be wary of this range - could change for different sigma
+        m_2 = np.arange(11, 15.0, 0.25)  # need to be wary of this range - could change for different sigma
         mag_max_2 = [0] * len(mag)
         mag_min_2 = [0] * len(mag)
         for count, err in enumerate(mag_err):
@@ -74,7 +74,7 @@ if __name__ == '__main__':
         N_max_2 = [(len(list(filter(lambda x: x < m_i, mag_min_2)))) for m_i in m_2]
         N_min_2 = [(len(list(filter(lambda x: x < m_i, mag_max_2)))) for m_i in m_2]
         N_2 = [(len(list(filter(lambda x: x < m_i, mag)))) for m_i in m_2]
-        logN_2_err = [np.sqrt((1 / (np.log(10) * np.sqrt(i)))**2 + (1/np.log(10)*0.10)**2) for i in N_2]
+        logN_2_err = [np.sqrt((1 / (np.log(10) * np.sqrt(i)))**2 + (1/np.log(10)*0.05)**2) for i in N_2]
         # print(len(N_2), len(logN_2_err))
         N_range_2 = [(np.log10(max_N) - np.log10(N_min[count])) / 2 for count, max_N in enumerate(N_max)]
         tot_err = [i + N_range_2[count] for count, i in enumerate(logN_2_err)]
@@ -86,10 +86,10 @@ if __name__ == '__main__':
         slope, intercept, rvalue, pvalue, stderr = linregress(m_2, np.log10(N_2))
         fit_str = f"Linear Regression Fit\nSlope:{round(slope, 3)}±{round(stderr, 3)}\nR^2:{round(rvalue ** 2, 3)}"
         plt.plot(m_2, [i * slope + intercept for i in m_2], 'b-', label=fit_str)
-        plt.plot(m_2, [i * 0.33 + intercept - 0.3 for i in m_2], 'y-', label='max')
-        plt.plot(m_2, [i * 0.285 + intercept + 0.2 for i in m_2], 'g-', label='min')
+        plt.plot(m_2, [i * 0.33 + intercept - 0.35 for i in m_2], 'y-',  linestyle='--', label='Max Grad: 0.330')
+        plt.plot(m_2, [i * 0.265 + intercept + 0.53 for i in m_2], 'g-',  linestyle='--', label='Min Grad: 0.265')
         # plt.plot(m_2, np.log10(N_2), 'r.', label='Data')
-        plt.errorbar(m_2, np.log10(N_2), fmt='r.', yerr=tot_err, linestyle='--', label='Raw Data')
+        plt.errorbar(m_2, np.log10(N_2), fmt='r.', yerr=tot_err, label='Raw Data')
         plt.xlabel('Magnitude Limit')
         plt.ylabel('Log_10 (Number of Galaxies)')
 
