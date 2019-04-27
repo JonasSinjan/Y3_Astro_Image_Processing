@@ -1,6 +1,6 @@
 import sys
 import threading
-
+from scipy.stats import linregress
 import matplotlib.pyplot as plt
 import numpy as np
 from astropy.io import fits
@@ -121,7 +121,7 @@ class Image:
                 self.mask[point[0], point[1]] = False
 
         if filename:
-            with open(filename,'w') as catalogue_file:
+            with open(filename, 'w') as catalogue_file:
                 catalogue_file.write(str(catalogue_list))
 
 
@@ -317,7 +317,7 @@ if __name__ == '__main__':
         # img.histogram(3500, 3350)
         img.filter_by_sigma(5)
         print(img.data.shape[0], img.data.shape[1])
-        catalogue, rejected = img.create_catalogue()
+        catalogue, rejected = img.create_catalogue(filename=True)
 
         print(len(catalogue), rejected)
         mag_arr = [0] * len(catalogue)
@@ -336,7 +336,11 @@ if __name__ == '__main__':
         plt.plot(m, N)
         plt.show()
         plt.figure()
-        plt.plot(m, np.log(N), 'r.', linestyle='--')
+        slope, intercept, rvalue, pvalue, stderr = linregress(m, np.log(N))
+        fit_str = f"Linear Regression Fit\nSlope:{round(slope, 3)}±{round(stderr,3)}\nR^2:{round(rvalue ** 2, 3)}"
+        plt.plot(m, [i*slope+intercept for i in m], 'b-', label=fit_str)
+        plt.plot(m, np.log(N), 'r.', linestyle='--', label='Raw Data')
+        plt.legend()
         plt.show()
 
 
