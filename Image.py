@@ -125,7 +125,7 @@ class Image:
                 catalogue_file.write(str(catalogue_list))
 
 
-        return list, i
+        return catalogue_list, i
 
     def cluster(self, fill_points):
         # Make sure that this is run on thread with additional stack memory available else this will likely fail!
